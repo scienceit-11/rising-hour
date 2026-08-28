@@ -1,4 +1,5 @@
 <title>Rising Hour</title>
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef0f7">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#05060d">
@@ -652,13 +653,14 @@
         <div class="field">
           <label class="flabel" for="utcOffset">UTC offset at birth, in hours</label>
           <input type="number" id="utcOffset" step="0.5" placeholder="e.g. 3 for Istanbul, −5 for New York" required>
-          <p class="fhelp"><strong>The single most important field.</strong> Being off by one hour here shifts the whole calculation by roughly 15° — more than being off by a full degree of latitude or longitude. Check the historical offset actually in effect on that date (wartime clock changes and long-abolished DST rules both apply retroactively).</p>
+          <p class="fhelp" id="utcOffsetAutoNote">Pick a city below and enter the birth date — the offset is calculated automatically (Türkiye: full historical DST history back to 1978, permanent UTC+3 since Sept 2016). You can still edit it by hand.</p>
+          <p class="fhelp"><strong>The single most important field.</strong> Being off by one hour here shifts the whole calculation by roughly 15° — more than being off by a full degree of latitude or longitude. If you typed a place manually (not from the quick-fill list), check the historical offset actually in effect on that date (wartime clock changes and long-abolished DST rules both apply retroactively).</p>
         </div>
 
         <div class="field">
           <label class="flabel" for="cityPick">Birth place — quick fill</label>
           <div class="city-quickfill">
-            <select id="cityPick"><option value="">Choose a city…</option></select>
+            <select id="cityPick"><option value="">Choose a city… (Türkiye: 81 il + major world cities)</option></select>
           </div>
           <div class="row2" style="margin-top:10px;">
             <div>
@@ -1139,39 +1141,160 @@
   });
 
   /* ---------------- City quick-fill ---------------- */
+  /* UTC-offset metadata per city:
+     { r: "TR" }              — Türkiye: dynamic historical calculation (see turkeyUtcOffset)
+     { s: <std>, r: "NONE" }  — fixed offset, no DST observed
+     { s: <std>, r: "EU" }    — EU-style DST: last Sun March – last Sun Oct, std+1
+     { s: <std>, r: "US" }    — US/Canada-style DST: 2nd Sun March – 1st Sun Nov, std+1
+     { s: <std>, r: "AUNZ" }  — Southern-hemisphere DST: Oct–Apr, std+1
+     Historical accuracy is approximate outside these well-documented modern rules — see note under the field. */
   const CITIES = [
-    ["Istanbul, Türkiye", 41.01, 28.98], ["Ankara, Türkiye", 39.93, 32.86], ["İzmir, Türkiye", 38.42, 27.14],
-    ["Bursa, Türkiye", 40.18, 29.06], ["Antalya, Türkiye", 36.90, 30.71], ["Adana, Türkiye", 37.00, 35.32],
-    ["London, UK", 51.51, -0.13], ["Paris, France", 48.85, 2.35], ["Berlin, Germany", 52.52, 13.40],
-    ["Madrid, Spain", 40.42, -3.70], ["Rome, Italy", 41.90, 12.50], ["Athens, Greece", 37.98, 23.73],
-    ["Vienna, Austria", 48.21, 16.37], ["Amsterdam, Netherlands", 52.37, 4.90], ["Stockholm, Sweden", 59.33, 18.07],
-    ["Warsaw, Poland", 52.23, 21.01], ["Kyiv, Ukraine", 50.45, 30.52], ["Lisbon, Portugal", 38.72, -9.14],
-    ["Dublin, Ireland", 53.35, -6.26], ["Moscow, Russia", 55.76, 37.62], ["Cairo, Egypt", 30.04, 31.24],
-    ["Tehran, Iran", 35.69, 51.39], ["Dubai, UAE", 25.20, 55.27], ["Riyadh, Saudi Arabia", 24.71, 46.68],
-    ["Baghdad, Iraq", 33.31, 44.36], ["Mumbai, India", 19.08, 72.88], ["Delhi, India", 28.61, 77.21],
-    ["Karachi, Pakistan", 24.86, 67.01], ["Lahore, Pakistan", 31.55, 74.34], ["Bangkok, Thailand", 13.75, 100.50],
-    ["Singapore", 1.35, 103.82], ["Beijing, China", 39.90, 116.41], ["Shanghai, China", 31.23, 121.47],
-    ["Tokyo, Japan", 35.68, 139.65], ["Seoul, South Korea", 37.57, 126.98], ["Jakarta, Indonesia", -6.21, 106.85],
-    ["Manila, Philippines", 14.60, 120.98], ["Sydney, Australia", -33.87, 151.21], ["Melbourne, Australia", -37.81, 144.96],
-    ["Auckland, New Zealand", -36.85, 174.76], ["Los Angeles, USA", 34.05, -118.24], ["New York, USA", 40.71, -74.01],
-    ["Chicago, USA", 41.88, -87.63], ["Toronto, Canada", 43.65, -79.38], ["Mexico City, Mexico", 19.43, -99.13],
-    ["São Paulo, Brazil", -23.55, -46.63], ["Buenos Aires, Argentina", -34.60, -58.38], ["Lagos, Nigeria", 6.52, 3.38],
-    ["Nairobi, Kenya", -1.29, 36.82], ["Johannesburg, South Africa", -26.20, 28.05]
+    // Türkiye — all 81 il merkezi, plaka sırasına göre
+    ["Adana, Türkiye", 37.00, 35.32, { r: "TR" }], ["Adıyaman, Türkiye", 37.76, 38.28, { r: "TR" }],
+    ["Afyonkarahisar, Türkiye", 38.76, 30.54, { r: "TR" }], ["Ağrı, Türkiye", 39.72, 43.05, { r: "TR" }],
+    ["Amasya, Türkiye", 40.65, 35.83, { r: "TR" }], ["Ankara, Türkiye", 39.93, 32.86, { r: "TR" }],
+    ["Antalya, Türkiye", 36.90, 30.71, { r: "TR" }], ["Artvin, Türkiye", 41.18, 41.82, { r: "TR" }],
+    ["Aydın, Türkiye", 37.85, 27.85, { r: "TR" }], ["Balıkesir, Türkiye", 39.65, 27.89, { r: "TR" }],
+    ["Bilecik, Türkiye", 40.15, 29.98, { r: "TR" }], ["Bingöl, Türkiye", 38.89, 40.50, { r: "TR" }],
+    ["Bitlis, Türkiye", 38.40, 42.11, { r: "TR" }], ["Bolu, Türkiye", 40.74, 31.61, { r: "TR" }],
+    ["Burdur, Türkiye", 37.72, 30.29, { r: "TR" }], ["Bursa, Türkiye", 40.18, 29.06, { r: "TR" }],
+    ["Çanakkale, Türkiye", 40.15, 26.41, { r: "TR" }], ["Çankırı, Türkiye", 40.60, 33.61, { r: "TR" }],
+    ["Çorum, Türkiye", 40.55, 34.95, { r: "TR" }], ["Denizli, Türkiye", 37.77, 29.09, { r: "TR" }],
+    ["Diyarbakır, Türkiye", 37.91, 40.24, { r: "TR" }], ["Edirne, Türkiye", 41.68, 26.56, { r: "TR" }],
+    ["Elazığ, Türkiye", 38.68, 39.22, { r: "TR" }], ["Erzincan, Türkiye", 39.75, 39.49, { r: "TR" }],
+    ["Erzurum, Türkiye", 39.90, 41.27, { r: "TR" }], ["Eskişehir, Türkiye", 39.78, 30.52, { r: "TR" }],
+    ["Gaziantep, Türkiye", 37.07, 37.38, { r: "TR" }], ["Giresun, Türkiye", 40.91, 38.39, { r: "TR" }],
+    ["Gümüşhane, Türkiye", 40.46, 39.48, { r: "TR" }], ["Hakkari, Türkiye", 37.58, 43.74, { r: "TR" }],
+    ["Hatay, Türkiye", 36.20, 36.16, { r: "TR" }], ["Isparta, Türkiye", 37.77, 30.55, { r: "TR" }],
+    ["Mersin, Türkiye", 36.81, 34.64, { r: "TR" }], ["İstanbul, Türkiye", 41.01, 28.98, { r: "TR" }],
+    ["İzmir, Türkiye", 38.42, 27.14, { r: "TR" }], ["Kars, Türkiye", 40.60, 43.10, { r: "TR" }],
+    ["Kastamonu, Türkiye", 41.38, 33.78, { r: "TR" }], ["Kayseri, Türkiye", 38.73, 35.49, { r: "TR" }],
+    ["Kırklareli, Türkiye", 41.73, 27.22, { r: "TR" }], ["Kırşehir, Türkiye", 39.15, 34.16, { r: "TR" }],
+    ["Kocaeli, Türkiye", 40.85, 29.88, { r: "TR" }], ["Konya, Türkiye", 37.87, 32.48, { r: "TR" }],
+    ["Kütahya, Türkiye", 39.42, 29.98, { r: "TR" }], ["Malatya, Türkiye", 38.36, 38.31, { r: "TR" }],
+    ["Manisa, Türkiye", 38.61, 27.43, { r: "TR" }], ["Kahramanmaraş, Türkiye", 37.58, 36.92, { r: "TR" }],
+    ["Mardin, Türkiye", 37.31, 40.74, { r: "TR" }], ["Muğla, Türkiye", 37.22, 28.36, { r: "TR" }],
+    ["Muş, Türkiye", 38.74, 41.49, { r: "TR" }], ["Nevşehir, Türkiye", 38.62, 34.72, { r: "TR" }],
+    ["Niğde, Türkiye", 37.97, 34.68, { r: "TR" }], ["Ordu, Türkiye", 40.98, 37.88, { r: "TR" }],
+    ["Rize, Türkiye", 41.02, 40.52, { r: "TR" }], ["Sakarya, Türkiye", 40.78, 30.40, { r: "TR" }],
+    ["Samsun, Türkiye", 41.29, 36.33, { r: "TR" }], ["Siirt, Türkiye", 37.93, 41.94, { r: "TR" }],
+    ["Sinop, Türkiye", 42.03, 35.15, { r: "TR" }], ["Sivas, Türkiye", 39.75, 37.02, { r: "TR" }],
+    ["Tekirdağ, Türkiye", 40.98, 27.51, { r: "TR" }], ["Tokat, Türkiye", 40.31, 36.55, { r: "TR" }],
+    ["Trabzon, Türkiye", 41.00, 39.72, { r: "TR" }], ["Tunceli, Türkiye", 39.11, 39.55, { r: "TR" }],
+    ["Şanlıurfa, Türkiye", 37.16, 38.79, { r: "TR" }], ["Uşak, Türkiye", 38.68, 29.41, { r: "TR" }],
+    ["Van, Türkiye", 38.49, 43.38, { r: "TR" }], ["Yozgat, Türkiye", 39.82, 34.80, { r: "TR" }],
+    ["Zonguldak, Türkiye", 41.46, 31.79, { r: "TR" }], ["Aksaray, Türkiye", 38.37, 34.03, { r: "TR" }],
+    ["Bayburt, Türkiye", 40.26, 40.22, { r: "TR" }], ["Karaman, Türkiye", 37.18, 33.22, { r: "TR" }],
+    ["Kırıkkale, Türkiye", 39.85, 33.52, { r: "TR" }], ["Batman, Türkiye", 37.88, 41.13, { r: "TR" }],
+    ["Şırnak, Türkiye", 37.52, 42.46, { r: "TR" }], ["Bartın, Türkiye", 41.63, 32.34, { r: "TR" }],
+    ["Ardahan, Türkiye", 41.11, 42.70, { r: "TR" }], ["Iğdır, Türkiye", 39.92, 44.05, { r: "TR" }],
+    ["Yalova, Türkiye", 40.65, 29.28, { r: "TR" }], ["Karabük, Türkiye", 41.20, 32.63, { r: "TR" }],
+    ["Kilis, Türkiye", 36.72, 37.12, { r: "TR" }], ["Osmaniye, Türkiye", 37.07, 36.25, { r: "TR" }],
+    ["Düzce, Türkiye", 40.84, 31.16, { r: "TR" }],
+    // International
+    ["London, UK", 51.51, -0.13, { s: 0, r: "EU" }], ["Paris, France", 48.85, 2.35, { s: 1, r: "EU" }],
+    ["Berlin, Germany", 52.52, 13.40, { s: 1, r: "EU" }], ["Madrid, Spain", 40.42, -3.70, { s: 1, r: "EU" }],
+    ["Rome, Italy", 41.90, 12.50, { s: 1, r: "EU" }], ["Athens, Greece", 37.98, 23.73, { s: 2, r: "EU" }],
+    ["Vienna, Austria", 48.21, 16.37, { s: 1, r: "EU" }], ["Amsterdam, Netherlands", 52.37, 4.90, { s: 1, r: "EU" }],
+    ["Stockholm, Sweden", 59.33, 18.07, { s: 1, r: "EU" }], ["Warsaw, Poland", 52.23, 21.01, { s: 1, r: "EU" }],
+    ["Kyiv, Ukraine", 50.45, 30.52, { s: 2, r: "EU" }], ["Lisbon, Portugal", 38.72, -9.14, { s: 0, r: "EU" }],
+    ["Dublin, Ireland", 53.35, -6.26, { s: 0, r: "EU" }], ["Moscow, Russia", 55.76, 37.62, { s: 3, r: "NONE" }],
+    ["Cairo, Egypt", 30.04, 31.24, { s: 2, r: "NONE" }], ["Tehran, Iran", 35.69, 51.39, { s: 3.5, r: "NONE" }],
+    ["Dubai, UAE", 25.20, 55.27, { s: 4, r: "NONE" }], ["Riyadh, Saudi Arabia", 24.71, 46.68, { s: 3, r: "NONE" }],
+    ["Baghdad, Iraq", 33.31, 44.36, { s: 3, r: "NONE" }], ["Mumbai, India", 19.08, 72.88, { s: 5.5, r: "NONE" }],
+    ["Delhi, India", 28.61, 77.21, { s: 5.5, r: "NONE" }], ["Karachi, Pakistan", 24.86, 67.01, { s: 5, r: "NONE" }],
+    ["Lahore, Pakistan", 31.55, 74.34, { s: 5, r: "NONE" }], ["Bangkok, Thailand", 13.75, 100.50, { s: 7, r: "NONE" }],
+    ["Singapore", 1.35, 103.82, { s: 8, r: "NONE" }], ["Beijing, China", 39.90, 116.41, { s: 8, r: "NONE" }],
+    ["Shanghai, China", 31.23, 121.47, { s: 8, r: "NONE" }], ["Tokyo, Japan", 35.68, 139.65, { s: 9, r: "NONE" }],
+    ["Seoul, South Korea", 37.57, 126.98, { s: 9, r: "NONE" }], ["Jakarta, Indonesia", -6.21, 106.85, { s: 7, r: "NONE" }],
+    ["Manila, Philippines", 14.60, 120.98, { s: 8, r: "NONE" }], ["Sydney, Australia", -33.87, 151.21, { s: 10, r: "AUNZ" }],
+    ["Melbourne, Australia", -37.81, 144.96, { s: 10, r: "AUNZ" }], ["Auckland, New Zealand", -36.85, 174.76, { s: 12, r: "AUNZ" }],
+    ["Los Angeles, USA", 34.05, -118.24, { s: -8, r: "US" }], ["New York, USA", 40.71, -74.01, { s: -5, r: "US" }],
+    ["Chicago, USA", 41.88, -87.63, { s: -6, r: "US" }], ["Toronto, Canada", 43.65, -79.38, { s: -5, r: "US" }],
+    ["Mexico City, Mexico", 19.43, -99.13, { s: -6, r: "NONE" }], ["São Paulo, Brazil", -23.55, -46.63, { s: -3, r: "NONE" }],
+    ["Buenos Aires, Argentina", -34.60, -58.38, { s: -3, r: "NONE" }], ["Lagos, Nigeria", 6.52, 3.38, { s: 1, r: "NONE" }],
+    ["Nairobi, Kenya", -1.29, 36.82, { s: 3, r: "NONE" }], ["Johannesburg, South Africa", -26.20, 28.05, { s: 2, r: "NONE" }]
   ];
+
+  /* ---------------- Automatic UTC-offset calculation ---------------- */
+  function nthSundayUTC(year, month /* 1-12 */, n /* 1-4, or -1 for last */) {
+    if (n === -1) {
+      const d = new Date(Date.UTC(year, month, 0)); // last day of `month`
+      d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+      return d;
+    }
+    const first = new Date(Date.UTC(year, month - 1, 1));
+    const firstSunday = 1 + ((7 - first.getUTCDay()) % 7);
+    return new Date(Date.UTC(year, month - 1, firstSunday + (n - 1) * 7));
+  }
+
+  function turkeyUtcOffset(y, mo, d) {
+    const date = new Date(Date.UTC(y, mo - 1, d));
+    // 8 Sept 2016 onward: permanent UTC+3, no more seasonal change.
+    if (date >= new Date(Date.UTC(2016, 8, 8))) return 3;
+    // 1978–2016: UTC+2 standard, EU-style DST (last Sun March – last Sun Oct) gives UTC+3.
+    if (y >= 1978) {
+      const dstStart = nthSundayUTC(y, 3, -1);
+      const dstEnd = nthSundayUTC(y, 10, -1);
+      return (date >= dstStart && date < dstEnd) ? 3 : 2;
+    }
+    // Before 1978: DST was practised on irregular, non-formulaic dates. UTC+2 is used as a
+    // reasonable approximation — verify against a historical source for dates this old.
+    return 2;
+  }
+
+  function computeUtcOffsetForCity(meta, y, mo, d) {
+    if (!meta) return null;
+    if (meta.r === "TR") return turkeyUtcOffset(y, mo, d);
+    if (meta.r === "NONE") return meta.s;
+    const date = new Date(Date.UTC(y, mo - 1, d));
+    if (meta.r === "EU") {
+      const start = nthSundayUTC(y, 3, -1), end = nthSundayUTC(y, 10, -1);
+      return (date >= start && date < end) ? meta.s + 1 : meta.s;
+    }
+    if (meta.r === "US") {
+      const start = nthSundayUTC(y, 3, 2), end = nthSundayUTC(y, 11, 1);
+      return (date >= start && date < end) ? meta.s + 1 : meta.s;
+    }
+    if (meta.r === "AUNZ") {
+      const aprSun = nthSundayUTC(y, 4, 1), octSun = nthSundayUTC(y, 10, 1);
+      return (date < aprSun || date >= octSun) ? meta.s + 1 : meta.s;
+    }
+    return meta.s;
+  }
   const cityPick = document.getElementById("cityPick");
-  CITIES.forEach(function (c) {
+  let selectedCityMeta = null;
+  CITIES.forEach(function (c, i) {
     const opt = document.createElement("option");
-    opt.value = c[1] + "," + c[2];
+    opt.value = String(i);
     opt.textContent = c[0];
     cityPick.appendChild(opt);
   });
+
+  function applyAutoUtcOffset() {
+    if (!selectedCityMeta) return;
+    const dateStr = document.getElementById("birthDate").value;
+    if (!dateStr) return;
+    const parts = dateStr.split("-");
+    const y = parseInt(parts[0], 10), mo = parseInt(parts[1], 10), d = parseInt(parts[2], 10);
+    if (!y || !mo || !d) return;
+    const offset = computeUtcOffsetForCity(selectedCityMeta, y, mo, d);
+    if (offset === null || isNaN(offset)) return;
+    document.getElementById("utcOffset").value = offset;
+    const note = document.getElementById("utcOffsetAutoNote");
+    if (note) note.textContent = "Otomatik hesaplandı: UTC" + (offset >= 0 ? "+" : "") + offset + " (seçilen şehir ve tarihe göre) — gerekirse elle değiştirebilirsin.";
+  }
+
   cityPick.addEventListener("change", function () {
-    if (!cityPick.value) return;
-    const parts = cityPick.value.split(",");
-    document.getElementById("lat").value = parts[0];
-    document.getElementById("lon").value = parts[1];
+    if (!cityPick.value) { selectedCityMeta = null; return; }
+    const c = CITIES[parseInt(cityPick.value, 10)];
+    document.getElementById("lat").value = c[1];
+    document.getElementById("lon").value = c[2];
+    selectedCityMeta = c[3];
+    applyAutoUtcOffset();
     persistState();
   });
+  document.getElementById("birthDate").addEventListener("change", applyAutoUtcOffset);
 
   /* ---------------- Time-window toggle ---------------- */
   const windowFields = document.getElementById("windowFields");
@@ -1282,6 +1405,7 @@
     document.getElementById("lat").value = (state && state.lat) || "";
     document.getElementById("lon").value = (state && state.lon) || "";
     cityPick.value = "";
+    selectedCityMeta = null;
 
     if (state && state.events && state.events.length) {
       state.events.forEach(function (ev) { addEventRow(ev.date, ev.label); });
