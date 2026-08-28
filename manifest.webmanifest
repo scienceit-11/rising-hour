@@ -1,0 +1,20 @@
+{
+  "name": "Rising Hour — birth-time rectification",
+  "short_name": "Rising Hour",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#05060d",
+  "theme_color": "#05060d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

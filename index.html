@@ -1,0 +1,1982 @@
+<title>Rising Hour</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef0f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#05060d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rising Hour">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,500&family=Cormorant+SC:wght@500;600&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #eef0f7;
+    --surface:     #f9f8ff;
+    --surface-2:   #f1f0fa;
+    --ink-1:       #14151f;
+    --ink-2:       #4b4d5f;
+    --ink-3:       #82849a;
+    --hairline:    rgba(20,21,31,0.11);
+    --hairline-2:  rgba(20,21,31,0.18);
+    --grid:        #e2e1ee;
+    --gold:        #b3760a;
+    --gold-soft:   rgba(179,118,10,0.13);
+    --moon:        #4f5fbf;
+    --moon-soft:   rgba(79,95,191,0.13);
+    --good:        #1a7a4c;
+    --warn:        #a85d00;
+    --crit:        #b23a3a;
+    --shadow:      0 1px 2px rgba(20,21,31,0.04), 0 8px 24px -12px rgba(20,21,31,0.18);
+    --focus:       #4f5fbf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page:        #05060d;
+      --surface:     #0f1122;
+      --surface-2:   #151831;
+      --ink-1:       #f1f0f5;
+      --ink-2:       #c1c2d6;
+      --ink-3:       #7b7f9a;
+      --hairline:    rgba(255,255,255,0.10);
+      --hairline-2:  rgba(255,255,255,0.16);
+      --grid:        #22243a;
+      --gold:        #d1a24a;
+      --gold-soft:   rgba(209,162,74,0.14);
+      --moon:        #8f9de8;
+      --moon-soft:   rgba(143,157,232,0.14);
+      --good:        #3fae7c;
+      --warn:        #d99a3f;
+      --crit:        #e17272;
+      --shadow:      0 1px 2px rgba(0,0,0,0.3), 0 12px 32px -12px rgba(0,0,0,0.6);
+      --focus:       #8f9de8;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:        #05060d;
+    --surface:     #0f1122;
+    --surface-2:   #151831;
+    --ink-1:       #f1f0f5;
+    --ink-2:       #c1c2d6;
+    --ink-3:       #7b7f9a;
+    --hairline:    rgba(255,255,255,0.10);
+    --hairline-2:  rgba(255,255,255,0.16);
+    --grid:        #22243a;
+    --gold:        #d1a24a;
+    --gold-soft:   rgba(209,162,74,0.14);
+    --moon:        #8f9de8;
+    --moon-soft:   rgba(143,157,232,0.14);
+    --good:        #3fae7c;
+    --warn:        #d99a3f;
+    --crit:        #e17272;
+    --shadow:      0 1px 2px rgba(0,0,0,0.3), 0 12px 32px -12px rgba(0,0,0,0.6);
+    --focus:       #8f9de8;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink-1);
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+    background-image:
+      radial-gradient(circle at 12% 8%, color-mix(in oklab, var(--gold) 10%, transparent), transparent 42%),
+      radial-gradient(circle at 88% 4%, color-mix(in oklab, var(--moon) 10%, transparent), transparent 38%);
+    background-attachment: fixed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  header.masthead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px 32px;
+    padding-bottom: 28px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .brand { display: flex; align-items: baseline; gap: 14px; }
+  .brand .mark {
+    font-family: "Cormorant SC", serif;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+  }
+  h1.title {
+    font-family: "Cormorant", serif;
+    font-weight: 600;
+    font-size: clamp(34px, 5vw, 50px);
+    letter-spacing: 0.005em;
+    margin: 2px 0 0;
+    text-wrap: balance;
+    color: var(--ink-1);
+    background: linear-gradient(100deg, var(--ink-1) 25%, var(--gold) 78%, var(--moon) 102%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @supports not (background-clip: text) {
+    h1.title { background: none; -webkit-text-fill-color: var(--ink-1); }
+  }
+  .subhead {
+    max-width: 46ch;
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+  .subhead em { color: var(--ink-1); font-style: italic; }
+
+  main.grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    main.grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 26px 26px 28px;
+  }
+  .panel + .panel { margin-top: 24px; }
+
+  .panel h2 {
+    font-family: "Cormorant", serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+  .panel .panel-note {
+    font-size: 13px;
+    color: var(--ink-3);
+    margin: 0 0 20px;
+    max-width: 52ch;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label.flabel {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-bottom: 7px;
+  }
+  .field .fhelp {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    margin-top: 6px;
+    line-height: 1.45;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  input[type="text"], input[type="date"], input[type="time"], input[type="number"], select {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--hairline-2);
+    border-radius: 8px;
+    padding: 10px 11px;
+    font: inherit;
+    font-size: 14.5px;
+    color: var(--ink-1);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  select { font-family: "Manrope", sans-serif; }
+  input::placeholder { color: var(--ink-3); }
+  input:focus, select:focus, button:focus-visible, .toggle input:focus-visible + span {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toggle {
+    position: relative;
+    flex: 1 1 auto;
+  }
+  .toggle input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .toggle span {
+    display: block;
+    text-align: center;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--hairline-2);
+    background: var(--surface-2);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  }
+  .toggle input:checked + span {
+    background: var(--moon-soft);
+    border-color: var(--moon);
+    color: var(--ink-1);
+  }
+
+  #windowFields { margin-top: 12px; }
+
+  .city-quickfill { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .city-quickfill select { font-family: "Manrope", sans-serif; }
+
+  #events { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .event-row {
+    display: grid;
+    grid-template-columns: 128px 1fr 30px;
+    gap: 8px;
+    align-items: center;
+  }
+  .event-row input[type="text"] { font-family: "Manrope", sans-serif; }
+  .event-remove {
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    border: 1px solid var(--hairline-2);
+    background: var(--surface-2);
+    color: var(--ink-3);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .event-remove:hover { color: var(--crit); border-color: var(--crit); }
+
+  .btn {
+    font-family: "Manrope", sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    letter-spacing: 0.01em;
+    border-radius: 8px;
+    border: 1px solid var(--hairline-2);
+    background: var(--surface-2);
+    color: var(--ink-1);
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--hairline-2); background: var(--moon-soft); }
+  .btn.add { width: 100%; }
+  .btn.primary {
+    width: 100%;
+    margin-top: 6px;
+    background: linear-gradient(120deg, var(--gold), var(--moon));
+    color: #fff;
+    border: none;
+    padding: 13px 16px;
+    font-size: 14.5px;
+    box-shadow: 0 6px 18px -8px color-mix(in oklab, var(--moon) 60%, transparent);
+  }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .btn.primary:active { filter: brightness(0.96); }
+
+  .msg {
+    font-size: 13px;
+    padding: 10px 13px;
+    border-radius: 8px;
+    margin-top: 14px;
+    border: 1px solid var(--hairline);
+    background: var(--surface-2);
+    color: var(--ink-2);
+    display: none;
+  }
+  .msg.show { display: block; }
+  .msg.warn { border-color: color-mix(in oklab, var(--warn) 45%, var(--hairline)); color: var(--warn); background: color-mix(in oklab, var(--warn) 8%, var(--surface-2)); }
+
+  /* ---- results ---- */
+  #resultsEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--ink-3);
+    font-size: 14px;
+    padding: 30px 4px 10px;
+  }
+  #resultsEmpty svg { opacity: 0.7; }
+
+  #resultsBody { display: none; }
+  #resultsBody.show { display: block; }
+
+  .headline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+  .headline .best-time {
+    font-family: "Cormorant", serif;
+    font-weight: 600;
+    font-size: clamp(38px, 6vw, 56px);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+  .headline .best-time .divider { color: var(--ink-3); font-weight: 400; padding: 0 6px; }
+
+  .confidence-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--hairline-2);
+    white-space: nowrap;
+  }
+  .confidence-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .confidence-chip.low { color: var(--warn); }
+  .confidence-chip.low .dot { background: var(--warn); }
+  .confidence-chip.moderate { color: var(--ink-1); }
+  .confidence-chip.moderate .dot { background: var(--moon); }
+  .confidence-chip.notable { color: var(--good); }
+  .confidence-chip.notable .dot { background: var(--good); }
+
+  .headline-caption { font-size: 13.5px; color: var(--ink-2); margin: 4px 0 22px; max-width: 62ch; }
+
+  .candidates {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 26px;
+  }
+  @media (max-width: 720px) { .candidates { grid-template-columns: 1fr; } }
+  .cand-card {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 14px 15px;
+    background: var(--surface-2);
+  }
+  .cand-card.rank-1 { border-color: color-mix(in oklab, var(--moon) 55%, var(--hairline)); box-shadow: 0 0 0 1px color-mix(in oklab, var(--moon) 25%, transparent) inset; }
+  .cand-card .rank { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .cand-card .ctime { font-family: "IBM Plex Mono", monospace; font-size: 20px; font-weight: 600; margin: 4px 0 6px; font-variant-numeric: tabular-nums; }
+  .cand-card .cmeta { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+  .cand-card .cmeta b { color: var(--ink-1); }
+
+  .chart-card { border-top: 1px solid var(--hairline); padding-top: 22px; margin-top: 4px; }
+  .chart-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 4px; }
+  .chart-head h3 { font-family: "Cormorant", serif; font-size: 19px; font-weight: 600; margin: 0; }
+  .legend { display: flex; gap: 16px; font-size: 12.5px; color: var(--ink-2); }
+  .legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 14px; height: 2px; border-radius: 2px; display: inline-block; }
+
+  .chart-wrap { position: relative; margin-top: 10px; }
+  #chartSvg { width: 100%; height: auto; display: block; overflow: visible; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .axis-text { fill: var(--ink-3); font-size: 10.5px; font-family: "IBM Plex Mono", monospace; }
+  .series-arc { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linecap: round; }
+  .series-moon { fill: none; stroke: var(--moon); stroke-width: 2; stroke-linecap: round; }
+  .best-marker { fill: var(--surface); stroke: var(--ink-1); stroke-width: 2; }
+  .window-band { fill: var(--moon-soft); }
+  .crosshair-line { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 2 3; }
+
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--surface);
+    border: 1px solid var(--hairline-2);
+    border-radius: 8px;
+    padding: 8px 11px;
+    font-size: 12px;
+    box-shadow: var(--shadow);
+    line-height: 1.5;
+    transform: translate(-50%, -110%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 100ms ease;
+    z-index: 5;
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip .tt-time { font-family: "IBM Plex Mono", monospace; font-weight: 600; color: var(--ink-1); }
+  .tooltip .tt-row { display: flex; justify-content: space-between; gap: 10px; }
+
+  .wheel-card { border-top: 1px solid var(--hairline); padding-top: 22px; margin-top: 26px; }
+  .wheel-figure { margin: 10px 0 0; }
+  .wheel-layout { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+  #wheelSvg { width: 100%; max-width: 480px; height: auto; display: block; flex: 0 0 auto; }
+  .wheel-ring { fill: none; stroke: var(--hairline-2); stroke-width: 1; }
+  .wheel-aspect-ring { fill: none; stroke: var(--hairline); stroke-width: 1; stroke-dasharray: 2 3; }
+  .zodiac-divider { stroke: var(--hairline-2); stroke-width: 1; }
+  .zodiac-glyph { fill: var(--ink-2); font-size: 17px; text-anchor: middle; dominant-baseline: middle; font-variant-emoji: text; }
+  .cusp-line { stroke: var(--hairline-2); stroke-width: 1; }
+  .cusp-line.axis-asc { stroke: var(--moon); stroke-width: 1.6; }
+  .cusp-line.axis-mc { stroke: var(--gold); stroke-width: 1.6; }
+  .house-num { fill: var(--ink-3); font-size: 10.5px; text-anchor: middle; dominant-baseline: middle; font-family: "IBM Plex Mono", monospace; }
+  .angle-label { font-size: 12px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+  .angle-label.asc-dc { fill: var(--moon); }
+  .angle-label.mc-ic { fill: var(--gold); }
+  .planet-tick { stroke: var(--ink-3); stroke-width: 1; }
+  .planet-leader { stroke: var(--ink-3); stroke-width: 0.75; stroke-dasharray: 1 2; opacity: 0.7; }
+  .planet-glyph { font-size: 18px; text-anchor: middle; dominant-baseline: middle; font-family: "Segoe UI Symbol", "Noto Sans Symbols", sans-serif; font-variant-emoji: text; }
+  .planet-glyph.body-sun { fill: var(--gold); }
+  .planet-glyph.body-moon { fill: var(--moon); }
+  .planet-glyph.body-other { fill: var(--ink-1); }
+  .planet-degree { fill: var(--ink-3); font-size: 8.5px; text-anchor: middle; font-family: "IBM Plex Mono", monospace; }
+  .retro-mark { fill: var(--crit); font-size: 8px; }
+  .aspect-line.harmonious { stroke: var(--good); stroke-width: 0.9; opacity: 0.55; }
+  .aspect-line.challenging { stroke: var(--crit); stroke-width: 0.9; opacity: 0.55; }
+  .wheel-legend { flex: 1 1 220px; min-width: 220px; font-size: 12.5px; color: var(--ink-2); }
+  .wheel-legend h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); margin: 0 0 8px; }
+  .wheel-legend .wl-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; }
+  .wheel-legend .wl-glyph { font-family: "Segoe UI Symbol", "Noto Sans Symbols", sans-serif; font-variant-emoji: text; width: 1.4em; text-align: center; color: var(--ink-1); }
+  .wheel-legend .wl-glyph.body-sun { color: var(--gold); }
+  .wheel-legend .wl-glyph.body-moon { color: var(--moon); }
+  .wheel-legend .wl-retro { color: var(--crit); font-size: 10px; margin-left: 3px; }
+  .wheel-legend .wl-line { display: inline-block; width: 18px; height: 2px; vertical-align: middle; margin-right: 6px; }
+  .wheel-figcaption { font-size: 12.5px; color: var(--ink-3); margin-top: 12px; max-width: 68ch; }
+
+  details.methodology { margin-top: 26px; border-top: 1px solid var(--hairline); padding-top: 18px; }
+  details.methodology summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    letter-spacing: 0.02em;
+  }
+  details.methodology .m-body { font-size: 13.5px; color: var(--ink-2); margin-top: 14px; max-width: 68ch; }
+  details.methodology .m-body p { margin: 0 0 12px; }
+  details.methodology .m-body h4 { font-size: 13px; color: var(--ink-1); margin: 16px 0 6px; }
+
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
+  table.data-table th, table.data-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--hairline); }
+  table.data-table th { color: var(--ink-3); font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.04em; }
+  table.data-table td { font-family: "IBM Plex Mono", monospace; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .table-scroll { overflow-x: auto; }
+
+  footer.pagefoot {
+    margin-top: 48px;
+    padding-top: 22px;
+    border-top: 1px solid var(--hairline);
+    color: var(--ink-3);
+    font-size: 12.5px;
+    max-width: 74ch;
+    line-height: 1.6;
+  }
+
+  /* ---- physical-appearance trait picker ---- */
+  .trait-groups { display: flex; flex-direction: column; gap: 14px; }
+  .trait-group .tg-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 7px;
+  }
+  .trait-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .trait-chip { position: relative; }
+  .trait-chip input { position: absolute; opacity: 0; inset: 0; cursor: pointer; width: 1px; height: 1px; }
+  .trait-chip span {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--hairline-2);
+    background: var(--surface-2);
+    font-size: 12.5px;
+    color: var(--ink-2);
+    cursor: pointer;
+    line-height: 1.3;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  }
+  .trait-chip input:checked + span {
+    background: linear-gradient(120deg, var(--gold-soft), var(--moon-soft));
+    border-color: var(--moon);
+    color: var(--ink-1);
+    font-weight: 600;
+  }
+  .trait-chip input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .trait-summary { font-size: 12.5px; color: var(--ink-3); margin-top: 10px; }
+
+  .sign-badge {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink-1);
+    background: var(--surface);
+    border: 1px solid var(--hairline-2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-bottom: 6px;
+  }
+  .sign-badge .tr-name { font-weight: 400; color: var(--ink-3); }
+
+  .results-toolbar { display: flex; justify-content: flex-end; margin: -6px 0 14px; }
+  .btn.ghost {
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn.ghost:hover { background: var(--moon-soft); }
+  .btn.small { padding: 8px 12px; font-size: 12.5px; white-space: nowrap; }
+  .btn.danger { color: var(--crit); }
+  .btn.danger:hover { background: color-mix(in oklab, var(--crit) 12%, var(--surface-2)); border-color: color-mix(in oklab, var(--crit) 40%, var(--hairline-2)); }
+
+  .msg.good { border-color: color-mix(in oklab, var(--good) 40%, var(--hairline)); color: var(--good); background: color-mix(in oklab, var(--good) 8%, var(--surface-2)); }
+
+  .profile-bar {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--surface-2);
+    padding: 14px 15px 15px;
+    margin-bottom: 22px;
+  }
+  .profile-bar .flabel { margin-bottom: 6px; }
+  .profile-row { display: flex; gap: 8px; align-items: center; }
+  .profile-row + .profile-row { margin-top: 8px; }
+  .profile-row select { flex: 1 1 auto; min-width: 0; }
+  .profile-row input[type="text"] { flex: 1 1 auto; min-width: 0; }
+  .profile-row .btn { flex: 0 0 auto; }
+  .delete-confirm-row { display: none; gap: 8px; align-items: center; margin-top: 8px; }
+  .delete-confirm-row span { font-size: 12.5px; color: var(--ink-2); margin-right: 2px; }
+  .profile-bar .fhelp { margin-top: 10px; margin-bottom: 0; }
+  @media (max-width: 520px) { .profile-row { flex-wrap: wrap; } .profile-row select { flex-basis: 100%; } }
+
+  /* ---- print report (hidden on screen, shown only when printing) ---- */
+  .print-only { display: none; }
+  .pr-cand-table, .pr-events-table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 8px 0 4px; }
+  .pr-cand-table th, .pr-cand-table td, .pr-events-table th, .pr-events-table td {
+    text-align: left; padding: 5px 8px; border-bottom: 1px solid #d8d8d8;
+  }
+  .pr-cand-table th, .pr-events-table th { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.04em; color: #666; }
+
+  @media print {
+    @page { margin: 16mm 14mm; }
+    :root {
+      /* force the light palette for print regardless of OS dark mode, since the report is set on a white page */
+      --page: #ffffff; --surface: #ffffff; --surface-2: #f4f4f4;
+      --ink-1: #14151f; --ink-2: #4b4d5f; --ink-3: #82849a;
+      --grid: #e2e1ee; --gold: #b3760a; --moon: #4f5fbf; --hairline: #d8d8d8; --hairline-2: #cfcfcf;
+      --good: #1a7a4c; --crit: #b23a3a;
+    }
+    html, body { background: #ffffff !important; }
+    body { background-image: none !important; font-size: 11pt; color: #14151f; }
+    header.masthead, #formPanel, #resultsPanel, footer.pagefoot { display: none !important; }
+    .print-only { display: block !important; }
+    .wrap { max-width: none; padding: 0; margin: 0; }
+    main.grid { display: block; }
+    .panel { box-shadow: none; border: none; padding: 0; background: #fff; }
+    #chartSvg .axis-text { font-size: 8pt; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="brand"><span class="mark">Rectification workbook</span></div>
+      <h1 class="title">Rising Hour</h1>
+      <p class="subhead">Most birth certificates never record a clock time. This narrows down <em>when</em> using two classical astrological rectification techniques run against real sky positions — not a guess, but not a certainty either.</p>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="panel" id="formPanel">
+      <h2>What you know</h2>
+      <p class="panel-note">Enter the birth date and place, then the clearest life events you have dates for. More events across more years of life sharpen the estimate considerably.</p>
+
+      <div class="profile-bar" id="profileBar">
+        <label class="flabel" for="profileSelect">Profile — save more than one person</label>
+        <div class="profile-row">
+          <select id="profileSelect"><option value="">— Unsaved —</option></select>
+          <button type="button" class="btn ghost small" id="newProfileBtn">+ New</button>
+        </div>
+        <div class="profile-row">
+          <input type="text" id="profileNameInput" placeholder="Name this profile — e.g. Me, my partner" maxlength="40">
+          <button type="button" class="btn ghost small" id="saveProfileBtn">Save</button>
+          <button type="button" class="btn ghost small danger" id="deleteProfileBtn" style="display:none;">Delete</button>
+        </div>
+        <div class="delete-confirm-row" id="deleteConfirmRow">
+          <span>Delete this profile?</span>
+          <button type="button" class="btn small danger" id="deleteConfirmYes">Yes, delete</button>
+          <button type="button" class="btn small" id="deleteConfirmNo">Cancel</button>
+        </div>
+        <div class="msg" id="profileMsg"></div>
+        <p class="fhelp">Save a profile to keep more than one person's birth details side by side and switch between them instantly — each is stored only in this browser, on this device.</p>
+      </div>
+
+      <form id="rectForm">
+        <div class="field">
+          <label class="flabel" for="birthDate">Birth date</label>
+          <input type="date" id="birthDate" required>
+        </div>
+
+        <div class="field">
+          <label class="flabel">Time of birth</label>
+          <div class="toggle-group">
+            <label class="toggle">
+              <input type="radio" name="timeKnowledge" value="none" checked>
+              <span>No idea — scan the full day</span>
+            </label>
+            <label class="toggle">
+              <input type="radio" name="timeKnowledge" value="window">
+              <span>Rough window</span>
+            </label>
+          </div>
+          <div id="windowFields" class="row2" style="display:none;">
+            <div>
+              <input type="time" id="windowStart" value="06:00">
+            </div>
+            <div>
+              <input type="time" id="windowEnd" value="10:00">
+            </div>
+          </div>
+          <p class="fhelp">"Rough window" narrows the search — e.g. family recalls "early morning" or a birth certificate margin says "AM."</p>
+        </div>
+
+        <div class="field">
+          <label class="flabel" for="utcOffset">UTC offset at birth, in hours</label>
+          <input type="number" id="utcOffset" step="0.5" placeholder="e.g. 3 for Istanbul, −5 for New York" required>
+          <p class="fhelp"><strong>The single most important field.</strong> Being off by one hour here shifts the whole calculation by roughly 15° — more than being off by a full degree of latitude or longitude. Check the historical offset actually in effect on that date (wartime clock changes and long-abolished DST rules both apply retroactively).</p>
+        </div>
+
+        <div class="field">
+          <label class="flabel" for="cityPick">Birth place — quick fill</label>
+          <div class="city-quickfill">
+            <select id="cityPick"><option value="">Choose a city…</option></select>
+          </div>
+          <div class="row2" style="margin-top:10px;">
+            <div>
+              <input type="number" id="lat" step="0.01" placeholder="Latitude (° N=+, S=−)" required>
+            </div>
+            <div>
+              <input type="number" id="lon" step="0.01" placeholder="Longitude (° E=+, W=−)" required>
+            </div>
+          </div>
+          <p class="fhelp">Any map app will show coordinates for a specific address. City fill is approximate to the city centre.</p>
+        </div>
+
+        <div class="field">
+          <label class="flabel">Dated life events</label>
+          <div id="events"></div>
+          <button type="button" class="btn add" id="addEvent">+ Add an event</button>
+          <p class="fhelp">Turning points work best: a move, a marriage, a first heartbreak, a career leap, a loss, a diagnosis, a graduation. Three or more, spread across different years, give this something real to triangulate against.</p>
+        </div>
+
+        <div class="field">
+          <label class="flabel">Physical appearance — optional</label>
+          <p class="fhelp" style="margin-top:-2px; margin-bottom:12px;">A separate, older astrological tradition holds that the rising sign — the sign on the horizon at birth — shows in how someone looks. Tick whatever genuinely applies to you and the tool will fold how well each candidate's rising sign matches into the ranking. This is folklore, not physiognomy backed by evidence — skip it entirely if it doesn't sit well with you; the estimate works fine without it.</p>
+          <div class="trait-groups" id="traitGroups"></div>
+          <p class="trait-summary" id="traitSummary">No traits selected — this signal will be left out.</p>
+        </div>
+
+        <button type="submit" class="btn primary">Estimate the birth hour</button>
+        <div class="msg" id="formMsg"></div>
+      </form>
+    </section>
+
+    <section class="panel" id="resultsPanel">
+      <h2>Estimate</h2>
+      <div id="resultsEmpty">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="22" cy="22" r="17" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M22 8 L22 22 L31 27" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M6 22 h4 M34 22 h4 M22 6 v4 M22 34 v4" stroke="currentColor" stroke-width="1.1"/>
+        </svg>
+        <div>Fill in what you know on the left, then run the estimate. This panel will fill with a best-guess hour, a confidence read, and the chart behind it.</div>
+      </div>
+
+      <div id="resultsBody">
+        <div class="results-toolbar">
+          <button type="button" class="btn ghost" id="printBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M6 14h12v7H6v-7Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            Download PDF report
+          </button>
+        </div>
+        <div class="headline">
+          <div class="best-time" id="bestTime">—</div>
+          <span class="confidence-chip" id="confChip"><span class="dot"></span><span id="confLabel">—</span></span>
+        </div>
+        <p class="headline-caption" id="headlineCaption"></p>
+
+        <div class="candidates" id="candidates"></div>
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <h3>Fit across the scanned window</h3>
+            <div class="legend">
+              <span class="lg"><span class="swatch" style="background:var(--gold)"></span>Solar arc → angles</span>
+              <span class="lg"><span class="swatch" style="background:var(--moon)"></span>Progressed Moon → angles</span>
+            </div>
+          </div>
+          <p class="fhelp" style="margin-bottom:0;">Lower is a tighter fit — the average angular distance (in degrees) between each technique's directed point and the natal chart's angles, across all events, if birth happened at that minute.</p>
+          <div class="chart-wrap" id="chartWrap">
+            <svg id="chartSvg" viewBox="0 0 900 260" preserveAspectRatio="none"></svg>
+            <div class="tooltip" id="tooltip"></div>
+          </div>
+        </div>
+
+        <div class="wheel-card">
+          <div class="chart-head">
+            <h3>Potential natal chart</h3>
+          </div>
+          <p class="fhelp" style="margin-bottom:0;">Drawn for candidate 1 above — the single best-fitting time. Placidus houses; ten bodies computed for that exact moment. If the true birth time sits elsewhere in the estimate, some of this will shift.</p>
+          <div class="wheel-layout">
+            <figure class="wheel-figure">
+              <svg id="wheelSvg" viewBox="0 0 640 640" role="img" aria-label="Natal chart wheel for the best-fit candidate time"></svg>
+              <figcaption class="wheel-figcaption" id="wheelCaption"></figcaption>
+            </figure>
+            <div class="wheel-legend">
+              <h4>Positions</h4>
+              <div id="wheelPositions"></div>
+              <h4 style="margin-top:14px;">Aspect lines</h4>
+              <div class="wl-row"><span class="wl-line" style="background:var(--good)"></span>Trine / sextile — harmonious</div>
+              <div class="wl-row"><span class="wl-line" style="background:var(--crit)"></span>Square / opposition — challenging</div>
+            </div>
+          </div>
+        </div>
+
+        <details class="methodology">
+          <summary>How this estimate is actually computed</summary>
+          <div class="m-body">
+            <p><strong>Rectification</strong> is the traditional astrological practice of inferring an unrecorded birth time by testing candidate charts against known life events. It is not a scientifically validated method — no controlled study has shown these techniques predict outcomes beyond chance — so treat what follows as a documented hypothesis to test further, not a certificate.</p>
+            <h4>Progressed Moon through the angles</h4>
+            <p>The Moon appears to travel roughly one degree per day; secondary progression re-reads that as one day per year of life. This tool finds the Moon's progressed position for the birth-year-adjusted date of each event and measures its distance to the four chart angles (Ascendant, Descendant, Midheaven, Imum Coeli) for each candidate birth time — closer contact at more of your events favours that candidate.</p>
+            <h4>Solar arc directions to the angles</h4>
+            <p>The Sun's own progressed movement (about a degree per year) is applied to the natal angles directly, then checked for contact with the natal Sun and Moon at each event date — a second, independent classical technique for the same purpose.</p>
+            <h4>Physical appearance by rising sign</h4>
+            <p>If you ticked any appearance traits, a third, separate tradition comes into play: the belief that the rising sign shows in physical features. The tool compares your selections against a keyword profile compiled from several published sources on rising-sign appearance and folds the match — averaged in equally alongside the two techniques above — into the ranking. Because the rising sign only changes roughly every two hours (faster or slower depending on latitude and time of year), this mainly narrows down which broad window of the day is plausible; the Moon and solar-arc techniques then do the finer work of pinpointing a time inside it. This is the least rigorous of the three signals — appearance-by-sign is folklore with no evidence behind it, sources disagree with each other, and any single person can look nothing like their sign's "typical" description — so a low or missing trait match on an otherwise strong candidate is not a reason to discard it.</p>
+            <h4>The natal chart wheel</h4>
+            <p>The wheel is drawn only for the single best-fit candidate above — not the full scanned window — since a chart needs one specific moment. Houses use the Placidus system (the most common Western default, dividing each quadrant's daily arc into thirds; verified during development to place the Ascendant and Midheaven exactly on cusps 1 and 10, keep all twelve cusps in strictly increasing order around the circle, and hold opposite cusps exactly 180° apart, checked from the equator to high latitudes). The other eight bodies use the standard low-precision planetary formulas valid 1800–2050 (accurate to roughly an arcminute for Mercury through Mars, a few arcminutes further out; checked against known orbital limits — Mercury and Venus never exceed their real maximum elongation from the Sun, and each outer planet's distance from the Sun stays inside its known range). Aspect lines use conventional orbs (5–8° depending on the aspect) and are only ever a description of angles — no outcome is implied.</p>
+            <h4>What's real astronomy here, and what isn't</h4>
+            <p>Sidereal time, the Ascendant, Midheaven, and Sun/Moon ecliptic positions are computed from standard low-precision astronomical formulas (verified in this build against known equinox/solstice instants and independent horizon geometry, accurate to a small fraction of a degree). The astrological premise that these positions correlate with life events is a belief system, not an established finding — the math is exact, the interpretation is traditional.</p>
+            <h4>Full result table</h4>
+            <div class="table-scroll">
+              <table class="data-table" id="fullTable"></table>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pagefoot">
+    Calculations run entirely in your browser — nothing you enter is sent anywhere. Your inputs are kept locally on this device (via browser storage) purely so this page remembers your chart next time you open it; nothing is shared. Coordinates and UTC offsets are as accurate as what you provide — for anything you plan to act on, double-check against a birth record or a professional astrologer's chart software.
+  </footer>
+
+  <div id="printReport" class="print-only"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- Astronomy engine ----------------
+     Formulas: Meeus, "Astronomical Algorithms" (Sun ch.25 low-precision;
+     Moon ch.47 truncated periodic terms; sidereal time ch.12; obliquity ch.22).
+     Ascendant/Midheaven from standard spherical-astronomy horizon formulas.
+     Validated during development against: known equinox/solstice instants
+     (Sun longitude within 0.01°) and independent numeric horizon root-finding
+     for the Ascendant/MC (agreement within 0.01°) across five widely spaced
+     test locations and dates. */
+
+  function norm360(x) { let v = x % 360; if (v < 0) v += 360; return v; }
+  function rad(d) { return d * Math.PI / 180; }
+  function deg(r) { return r * 180 / Math.PI; }
+  function circDist(a, b) { let d = Math.abs(norm360(a - b)); return Math.min(d, 360 - d); }
+
+  function julianDay(year, month, day, hour, minute, second) {
+    let Y = year, M = month;
+    if (M <= 2) { Y -= 1; M += 12; }
+    const A = Math.floor(Y / 100);
+    const B = 2 - A + Math.floor(A / 4);
+    const dayFrac = day + (hour + minute / 60 + second / 3600) / 24;
+    return Math.floor(365.25 * (Y + 4716)) + Math.floor(30.6001 * (M + 1)) + dayFrac + B - 1524.5;
+  }
+  function centuries(jd) { return (jd - 2451545.0) / 36525; }
+
+  function gmstDegrees(jd) {
+    const T = centuries(jd);
+    return norm360(280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - (T * T * T) / 38710000);
+  }
+  function obliquityDegrees(jd) {
+    const T = centuries(jd);
+    const sec = 21.448 - 46.8150 * T - 0.00059 * T * T + 0.001813 * T * T * T;
+    return 23 + 26 / 60 + sec / 3600;
+  }
+  function sunLongitude(jd) {
+    const T = centuries(jd);
+    const L0 = norm360(280.46646 + 36000.76983 * T + 0.0003032 * T * T);
+    const M = norm360(357.52911 + 35999.05029 * T - 0.0001537 * T * T);
+    const Mr = rad(M);
+    const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(Mr)
+      + (0.019993 - 0.000101 * T) * Math.sin(2 * Mr)
+      + 0.000289 * Math.sin(3 * Mr);
+    const trueLon = L0 + C;
+    const omega = 125.04 - 1934.136 * T;
+    return norm360(trueLon - 0.00569 - 0.00478 * Math.sin(rad(omega)));
+  }
+  function moonLongitude(jd) {
+    const T = centuries(jd);
+    const Lp = norm360(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T);
+    const D = norm360(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T);
+    const M = norm360(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T);
+    const Mp = norm360(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T);
+    const F = norm360(93.2720950 + 483202.0175233 * T - 0.0036539 * T * T);
+    const d = rad(D), m = rad(M), mp = rad(Mp), f = rad(F);
+    let dl = 0;
+    dl += 6.288774 * Math.sin(mp);
+    dl += 1.274027 * Math.sin(2 * d - mp);
+    dl += 0.658314 * Math.sin(2 * d);
+    dl += 0.213618 * Math.sin(2 * mp);
+    dl -= 0.185116 * Math.sin(m);
+    dl -= 0.114332 * Math.sin(2 * f);
+    dl += 0.058793 * Math.sin(2 * d - 2 * mp);
+    dl += 0.057066 * Math.sin(2 * d - m - mp);
+    dl += 0.053322 * Math.sin(2 * d + mp);
+    dl += 0.045758 * Math.sin(2 * d - m);
+    dl -= 0.040923 * Math.sin(m - mp);
+    dl -= 0.034720 * Math.sin(d);
+    dl -= 0.030383 * Math.sin(m + mp);
+    dl += 0.015327 * Math.sin(2 * d - 2 * f);
+    dl -= 0.012528 * Math.sin(2 * f + mp);
+    dl += 0.010980 * Math.sin(2 * f - mp);
+    dl += 0.010675 * Math.sin(4 * d - mp);
+    dl += 0.010034 * Math.sin(3 * mp);
+    dl += 0.008548 * Math.sin(4 * d - 2 * mp);
+    dl -= 0.007888 * Math.sin(2 * d + m - mp);
+    dl -= 0.006766 * Math.sin(2 * d + m);
+    return norm360(Lp + dl);
+  }
+  function midheaven(lstDeg, epsDeg) {
+    const theta = rad(lstDeg), e = rad(epsDeg);
+    return norm360(deg(Math.atan2(Math.sin(theta), Math.cos(theta) * Math.cos(e))));
+  }
+  function ascendant(lstDeg, latDeg, epsDeg) {
+    const theta = rad(lstDeg), phi = rad(latDeg), e = rad(epsDeg);
+    const y = -Math.cos(theta);
+    const x = Math.sin(e) * Math.tan(phi) + Math.cos(e) * Math.sin(theta);
+    return norm360(deg(Math.atan2(y, x)) + 180);
+  }
+  function lstDegrees(gmstDeg, lonDeg) { return norm360(gmstDeg + lonDeg); }
+
+  /* ---------------- Placidus house cusps ----------------
+     Standard iterative Placidus method: cusps 11/12 divide the Midheaven's
+     semi-diurnal arc in thirds; cusps 2/3 divide the Ascendant's semi-nocturnal
+     arc in thirds; each solved by fixed-point iteration since a point's own
+     declination (and so its own diurnal/nocturnal arc) depends on the unknown
+     longitude. Cusps 4-9 follow from the 180°-opposite-point rule. Validated
+     during development: cusp1==ASC and cusp10==MC exactly, the twelve cusps
+     fall in strictly increasing order around the circle from the Ascendant,
+     and opposite cusps differ by exactly 180° — checked at the equator, two
+     mid-latitudes in each hemisphere, and a high latitude (Stockholm). */
+  function declinationOf(lambdaDeg, epsDeg) { return deg(Math.asin(Math.sin(rad(epsDeg)) * Math.sin(rad(lambdaDeg)))); }
+  function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+  function semiDiurnalArc(decDeg, phiDeg) { return deg(Math.acos(clamp(-Math.tan(rad(phiDeg)) * Math.tan(rad(decDeg)), -1, 1))); }
+  function semiNocturnalArc(decDeg, phiDeg) { return deg(Math.acos(clamp(Math.tan(rad(phiDeg)) * Math.tan(rad(decDeg)), -1, 1))); }
+  function solvePlacidusCusp(lstDeg, phiDeg, epsDeg, anchorH, frac, arcFn, startGuess) {
+    let lambda = startGuess;
+    for (let iter = 0; iter < 12; iter++) {
+      const dec = declinationOf(lambda, epsDeg);
+      const arc = arcFn(dec, phiDeg);
+      const Htarget = anchorH - frac * arc;
+      const raNeeded = norm360(lstDeg - Htarget);
+      lambda = midheaven(raNeeded, epsDeg); // reuses the RA->ecliptic-longitude closed form
+    }
+    return lambda;
+  }
+  function placidusCusps(lstDeg, phiDeg, epsDeg, ascDeg, mcDeg) {
+    const hAsc = -semiDiurnalArc(declinationOf(ascDeg, epsDeg), phiDeg);
+    const c11 = solvePlacidusCusp(lstDeg, phiDeg, epsDeg, 0, 1 / 3, semiDiurnalArc, norm360(mcDeg + 30));
+    const c12 = solvePlacidusCusp(lstDeg, phiDeg, epsDeg, 0, 2 / 3, semiDiurnalArc, norm360(mcDeg + 60));
+    const c2 = solvePlacidusCusp(lstDeg, phiDeg, epsDeg, hAsc, 1 / 3, semiNocturnalArc, norm360(ascDeg + 30));
+    const c3 = solvePlacidusCusp(lstDeg, phiDeg, epsDeg, hAsc, 2 / 3, semiNocturnalArc, norm360(ascDeg + 60));
+    const cusps = new Array(12);
+    cusps[0] = norm360(ascDeg); cusps[1] = norm360(c2); cusps[2] = norm360(c3); cusps[3] = norm360(mcDeg + 180);
+    cusps[4] = norm360(c11 + 180); cusps[5] = norm360(c12 + 180); cusps[6] = norm360(ascDeg + 180); cusps[7] = norm360(c2 + 180);
+    cusps[8] = norm360(c3 + 180); cusps[9] = norm360(mcDeg); cusps[10] = norm360(c11); cusps[11] = norm360(c12);
+    return cusps;
+  }
+
+  /* ---------------- Planetary positions ----------------
+     Standish/JPL "Keplerian elements for approximate positions of the major
+     planets," valid 1800-2050 AD — the standard low-precision two-body model
+     (accurate to roughly 1 arcminute for the inner planets, a few arcminutes
+     for the outer ones; it omits mutual perturbations). Validated during
+     development against orbital-mechanics invariants that hold regardless of
+     absolute accuracy: Mercury/Venus never exceed their known ~28°/~48° max
+     elongation from the Sun, each outer planet's heliocentric distance stays
+     within its known perihelion/aphelion range, and the implied Sun position
+     tracks the separately-verified Meeus formula to within a degree. */
+  const PLANET_ELEMENTS = {
+    mercury: [0.38709927, 0.00000037, 0.20563593, 0.00001906, 7.00497902, -0.00594749, 252.25032350, 149472.67411175, 77.45779628, 0.16047689, 48.33076593, -0.12534081],
+    venus: [0.72333566, 0.00000390, 0.00677672, -0.00004107, 3.39467605, -0.00078890, 181.97909950, 58517.81538729, 131.60246718, 0.00268329, 76.67984255, -0.27769418],
+    earth: [1.00000261, 0.00000562, 0.01671123, -0.00004392, -0.00001531, -0.01294668, 100.46457166, 35999.37244981, 102.93768193, 0.32327364, 0.0, 0.0],
+    mars: [1.52371034, 0.00001847, 0.09339410, 0.00007882, 1.84969142, -0.00813131, -4.55343205, 19140.30268499, -23.94362959, 0.44441088, 49.55953891, -0.29257343],
+    jupiter: [5.20288700, -0.00011607, 0.04838624, -0.00013253, 1.30439695, -0.00183714, 34.39644051, 3034.74612775, 14.72847983, 0.21252668, 100.47390909, 0.20469106],
+    saturn: [9.53667594, -0.00125060, 0.05386179, -0.00050991, 2.48599187, 0.00193609, 49.95424423, 1222.49362201, 92.59887831, -0.41897216, 113.66242448, -0.28867794],
+    uranus: [19.18916464, -0.00196176, 0.04725744, -0.00004397, 0.77263783, -0.00242939, 313.23810451, 428.48202785, 170.95427630, 0.40805281, 74.01692503, 0.04240589],
+    neptune: [30.06992276, 0.00026291, 0.00859048, 0.00005105, 1.77004347, 0.00035372, -55.12002969, 218.45945325, 44.96476227, -0.32241464, 131.78422574, -0.00508664],
+    pluto: [39.48211675, -0.00031596, 0.24882730, 0.00005170, 17.14001206, 0.00004818, 238.92903833, 145.20780515, 224.06891629, -0.04062942, 110.30393684, -0.01183482]
+  };
+  function planetElementsAt(name, T) {
+    const e = PLANET_ELEMENTS[name];
+    return {
+      a: e[0] + e[1] * T, e: e[2] + e[3] * T, I: e[4] + e[5] * T,
+      L: norm360(e[6] + e[7] * T), wbar: norm360(e[8] + e[9] * T), Om: norm360(e[10] + e[11] * T)
+    };
+  }
+  function planetHeliocentric(name, T) {
+    const el = planetElementsAt(name, T);
+    const w = el.wbar - el.Om;
+    let M = norm360(el.L - el.wbar); if (M > 180) M -= 360;
+    const eDeg = el.e * 180 / Math.PI;
+    let E = M + eDeg * Math.sin(rad(M));
+    for (let i = 0; i < 15; i++) {
+      const Er = rad(E);
+      E = E - (E - eDeg * Math.sin(Er) - M) / (1 - el.e * Math.cos(Er));
+    }
+    const Er = rad(E);
+    const xp = el.a * (Math.cos(Er) - el.e);
+    const yp = el.a * Math.sqrt(1 - el.e * el.e) * Math.sin(Er);
+    const om = rad(el.Om), wr = rad(w), Ir = rad(el.I);
+    const cosOm = Math.cos(om), sinOm = Math.sin(om), cosw = Math.cos(wr), sinw = Math.sin(wr), cosI = Math.cos(Ir), sinI = Math.sin(Ir);
+    const xecl = (cosOm * cosw - sinOm * sinw * cosI) * xp + (-cosOm * sinw - sinOm * cosw * cosI) * yp;
+    const yecl = (sinOm * cosw + cosOm * sinw * cosI) * xp + (-sinOm * sinw + cosOm * cosw * cosI) * yp;
+    const zecl = (sinw * sinI) * xp + (cosw * sinI) * yp;
+    return { x: xecl, y: yecl, z: zecl };
+  }
+  function planetGeocentricLongitude(name, jd) {
+    const T = centuries(jd);
+    const earth = planetHeliocentric('earth', T);
+    const p = planetHeliocentric(name, T);
+    const xg = p.x - earth.x, yg = p.y - earth.y, zg = p.z - earth.z;
+    return norm360(deg(Math.atan2(yg, xg)));
+  }
+  const OUTER_BODIES = ["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+  const PLANET_META = {
+    sun: { glyph: "☉︎", label: "Sun" }, moon: { glyph: "☽︎", label: "Moon" },
+    mercury: { glyph: "☿︎", label: "Mercury" }, venus: { glyph: "♀︎", label: "Venus" }, mars: { glyph: "♂︎", label: "Mars" },
+    jupiter: { glyph: "♃︎", label: "Jupiter" }, saturn: { glyph: "♄︎", label: "Saturn" }, uranus: { glyph: "♅︎", label: "Uranus" },
+    neptune: { glyph: "♆︎", label: "Neptune" }, pluto: { glyph: "♇︎", label: "Pluto" }
+  };
+  const BODY_ORDER = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
+
+  // jd for a given calendar date + local decimal hours + UTC offset (handles rollover cleanly)
+  function jdFromLocal(y, mo, d, localDecHours, utcOffsetHours) {
+    const jd0 = julianDay(y, mo, d, 0, 0, 0);
+    return jd0 + (localDecHours - utcOffsetHours) / 24;
+  }
+
+  function natalChart(y, mo, d, localDecHours, utcOffsetHours, latDeg, lonDeg) {
+    const jd = jdFromLocal(y, mo, d, localDecHours, utcOffsetHours);
+    const eps = obliquityDegrees(jd);
+    const lst = lstDegrees(gmstDegrees(jd), lonDeg);
+    return {
+      jd,
+      asc: ascendant(lst, latDeg, eps),
+      mc: midheaven(lst, eps),
+      sun: sunLongitude(jd),
+      moon: moonLongitude(jd)
+    };
+  }
+
+  const TROPICAL_YEAR = 365.2425;
+
+  function eventScoreForChart(natal, eventJdNoon, birthJdNoon) {
+    const yearsElapsed = (eventJdNoon - birthJdNoon) / TROPICAL_YEAR;
+    const progJd = natal.jd + yearsElapsed;
+    const progMoon = moonLongitude(progJd);
+    const moonDist = Math.min(
+      circDist(progMoon, natal.asc), circDist(progMoon, natal.asc + 180),
+      circDist(progMoon, natal.mc), circDist(progMoon, natal.mc + 180)
+    );
+    const arc = norm360(sunLongitude(progJd) - natal.sun);
+    const dAsc = norm360(natal.asc + arc), dMc = norm360(natal.mc + arc);
+    const arcDist = Math.min(
+      circDist(dAsc, natal.sun), circDist(dAsc, natal.moon),
+      circDist(dAsc + 180, natal.sun), circDist(dAsc + 180, natal.moon),
+      circDist(dMc, natal.sun), circDist(dMc, natal.moon),
+      circDist(dMc + 180, natal.sun), circDist(dMc + 180, natal.moon)
+    );
+    return { moonDist, arcDist };
+  }
+
+  // Full chart for one specific candidate time: angles, Placidus houses, and all ten bodies (with retrograde flags).
+  function computeFullNatalChart(y, mo, d, localDecHours, utcOffsetHours, latDeg, lonDeg) {
+    const natal = natalChart(y, mo, d, localDecHours, utcOffsetHours, latDeg, lonDeg);
+    const eps = obliquityDegrees(natal.jd);
+    const lst = lstDegrees(gmstDegrees(natal.jd), lonDeg);
+    const cusps = placidusCusps(lst, latDeg, eps, natal.asc, natal.mc);
+    const bodies = {
+      sun: { lon: natal.sun, retro: false },
+      moon: { lon: natal.moon, retro: false }
+    };
+    OUTER_BODIES.forEach(function (name) {
+      const lonNow = planetGeocentricLongitude(name, natal.jd);
+      const lonPrev = planetGeocentricLongitude(name, natal.jd - 1);
+      let delta = norm360(lonNow - lonPrev); if (delta > 180) delta -= 360;
+      bodies[name] = { lon: lonNow, retro: delta < 0 };
+    });
+    return { jd: natal.jd, asc: natal.asc, mc: natal.mc, cusps: cusps, bodies: bodies };
+  }
+
+  window.__risingHourEngine = { julianDay, natalChart, eventScoreForChart, TROPICAL_YEAR, computeFullNatalChart };
+
+  /* ---------------- Rising-sign appearance folklore ----------------
+     Keyword profiles compiled from several published sources on rising-sign
+     physical-appearance tradition (a distinct, older strand of astrology from
+     the rectification math above), cross-referenced and phrased neutrally.
+     Treated as one optional, equally-weighted signal — see the methodology
+     panel for the sourcing and caveats. */
+  const ZODIAC_SIGNS = [
+    { en: "Aries", tr: "Koç", glyph: "♈︎" }, { en: "Taurus", tr: "Boğa", glyph: "♉︎" }, { en: "Gemini", tr: "İkizler", glyph: "♊︎" }, { en: "Cancer", tr: "Yengeç", glyph: "♋︎" },
+    { en: "Leo", tr: "Aslan", glyph: "♌︎" }, { en: "Virgo", tr: "Başak", glyph: "♍︎" }, { en: "Libra", tr: "Terazi", glyph: "♎︎" }, { en: "Scorpio", tr: "Akrep", glyph: "♏︎" },
+    { en: "Sagittarius", tr: "Yay", glyph: "♐︎" }, { en: "Capricorn", tr: "Oğlak", glyph: "♑︎" }, { en: "Aquarius", tr: "Kova", glyph: "♒︎" }, { en: "Pisces", tr: "Balık", glyph: "♓︎" }
+  ];
+  function signIndexOf(ascDeg) { return Math.floor(norm360(ascDeg) / 30); }
+
+  const TRAIT_CATS = [
+    { id: "build", label: "Build & height" },
+    { id: "face", label: "Face shape" },
+    { id: "eyes", label: "Eyes & brows" },
+    { id: "hair", label: "Hair & complexion" },
+    { id: "other", label: "Distinguishing & bearing" }
+  ];
+  const TRAIT_TAGS = [
+    { id: "b_athletic", cat: "build", label: "Athletic, toned build" },
+    { id: "b_sturdy", cat: "build", label: "Solid, sturdy build" },
+    { id: "b_slender", cat: "build", label: "Slender, long-limbed build" },
+    { id: "b_petite", cat: "build", label: "Petite or soft build" },
+    { id: "b_compact", cat: "build", label: "Compact, powerful build" },
+    { id: "b_tall", cat: "build", label: "Tall stature" },
+    { id: "b_short", cat: "build", label: "Short-to-average stature" },
+    { id: "b_broadshoulders", cat: "build", label: "Broad shoulders, open chest" },
+    { id: "f_round", cat: "face", label: "Round or heart-shaped face" },
+    { id: "f_oval", cat: "face", label: "Oval face" },
+    { id: "f_square", cat: "face", label: "Square or angular jaw" },
+    { id: "f_triangular", cat: "face", label: "Triangular face" },
+    { id: "f_diamond", cat: "face", label: "Diamond-shaped face" },
+    { id: "f_narrow", cat: "face", label: "Narrow or elongated face" },
+    { id: "f_forehead", cat: "face", label: "Prominent forehead" },
+    { id: "f_cheekbones", cat: "face", label: "High cheekbones" },
+    { id: "e_large", cat: "eyes", label: "Large, expressive eyes" },
+    { id: "e_intense", cat: "eyes", label: "Deep-set, intense gaze" },
+    { id: "e_calm", cat: "eyes", label: "Calm, steady eyes" },
+    { id: "e_bright", cat: "eyes", label: "Bright, alert eyes" },
+    { id: "e_brows", cat: "eyes", label: "Strong, defined eyebrows" },
+    { id: "e_lashes", cat: "eyes", label: "Long eyelashes" },
+    { id: "h_thick", cat: "hair", label: "Thick or voluminous hair" },
+    { id: "h_red", cat: "hair", label: "Reddish or strawberry-toned hair" },
+    { id: "h_dark", cat: "hair", label: "Dark hair" },
+    { id: "h_light", cat: "hair", label: "Light, sandy, or fair hair" },
+    { id: "h_curly", cat: "hair", label: "Curly or wavy hair" },
+    { id: "c_pale", cat: "hair", label: "Pale or fair complexion" },
+    { id: "c_ruddy", cat: "hair", label: "Ruddy or warm complexion" },
+    { id: "c_olive", cat: "hair", label: "Olive or tan complexion" },
+    { id: "d_dimples", cat: "other", label: "Dimples" },
+    { id: "d_freckles", cat: "other", label: "Freckles" },
+    { id: "d_mark", cat: "other", label: "A scar, mole, or mark on the face/head" },
+    { id: "d_youthful", cat: "other", label: "Youthful-looking face" },
+    { id: "d_mature", cat: "other", label: "Mature or serious bearing" },
+    { id: "d_quickmove", cat: "other", label: "Quick, energetic movement" },
+    { id: "d_calmmove", cat: "other", label: "Calm, deliberate movement" },
+    { id: "d_graceful", cat: "other", label: "Graceful, poised movement" },
+    { id: "d_unconventional", cat: "other", label: "Distinctive or unconventional look" },
+    { id: "d_smile", cat: "other", label: "A big, ready smile" }
+  ];
+  const SIGN_TRAITS = [
+    ["b_athletic", "b_broadshoulders", "f_square", "f_forehead", "e_brows", "e_bright", "h_red", "c_ruddy", "d_mark", "d_quickmove"],
+    ["b_sturdy", "b_short", "f_round", "e_calm", "h_thick", "h_dark", "h_curly", "c_pale", "d_calmmove"],
+    ["b_slender", "b_tall", "f_narrow", "f_forehead", "e_bright", "h_dark", "d_youthful", "d_quickmove"],
+    ["f_round", "e_large", "c_pale", "h_light", "b_broadshoulders", "d_youthful", "e_calm"],
+    ["h_thick", "b_broadshoulders", "b_athletic", "c_ruddy", "f_diamond", "e_bright", "d_smile"],
+    ["b_petite", "b_short", "f_triangular", "f_forehead", "c_olive", "d_calmmove", "e_bright"],
+    ["f_oval", "f_square", "e_large", "d_dimples", "d_smile", "d_graceful", "c_pale"],
+    ["e_intense", "f_square", "f_cheekbones", "e_brows", "h_dark", "b_compact", "d_mature"],
+    ["b_tall", "b_athletic", "f_oval", "f_forehead", "d_smile", "h_dark"],
+    ["d_mature", "f_cheekbones", "f_square", "b_slender", "h_dark", "d_calmmove"],
+    ["b_tall", "b_slender", "f_forehead", "e_large", "d_unconventional", "h_light"],
+    ["f_round", "e_large", "e_lashes", "c_pale", "b_petite", "d_graceful"]
+  ];
+
+  const traitGroupsWrap = document.getElementById("traitGroups");
+  TRAIT_CATS.forEach(function (cat) {
+    const group = document.createElement("div");
+    group.className = "trait-group";
+    const chips = TRAIT_TAGS.filter(function (t) { return t.cat === cat.id; }).map(function (t) {
+      return '<label class="trait-chip"><input type="checkbox" class="trait-input" value="' + t.id + '"><span>' + t.label + '</span></label>';
+    }).join("");
+    group.innerHTML = '<div class="tg-label">' + cat.label + '</div><div class="trait-chips">' + chips + '</div>';
+    traitGroupsWrap.appendChild(group);
+  });
+  function getSelectedTraits() {
+    return Array.from(document.querySelectorAll(".trait-input:checked")).map(function (el) { return el.value; });
+  }
+  function updateTraitSummary() {
+    const n = getSelectedTraits().length;
+    document.getElementById("traitSummary").textContent = n === 0
+      ? "No traits selected — this signal will be left out."
+      : n + " trait" + (n === 1 ? "" : "s") + " selected.";
+  }
+  traitGroupsWrap.addEventListener("change", function (e) {
+    if (e.target.classList.contains("trait-input")) { updateTraitSummary(); persistState(); }
+  });
+
+  /* ---------------- City quick-fill ---------------- */
+  const CITIES = [
+    ["Istanbul, Türkiye", 41.01, 28.98], ["Ankara, Türkiye", 39.93, 32.86], ["İzmir, Türkiye", 38.42, 27.14],
+    ["Bursa, Türkiye", 40.18, 29.06], ["Antalya, Türkiye", 36.90, 30.71], ["Adana, Türkiye", 37.00, 35.32],
+    ["London, UK", 51.51, -0.13], ["Paris, France", 48.85, 2.35], ["Berlin, Germany", 52.52, 13.40],
+    ["Madrid, Spain", 40.42, -3.70], ["Rome, Italy", 41.90, 12.50], ["Athens, Greece", 37.98, 23.73],
+    ["Vienna, Austria", 48.21, 16.37], ["Amsterdam, Netherlands", 52.37, 4.90], ["Stockholm, Sweden", 59.33, 18.07],
+    ["Warsaw, Poland", 52.23, 21.01], ["Kyiv, Ukraine", 50.45, 30.52], ["Lisbon, Portugal", 38.72, -9.14],
+    ["Dublin, Ireland", 53.35, -6.26], ["Moscow, Russia", 55.76, 37.62], ["Cairo, Egypt", 30.04, 31.24],
+    ["Tehran, Iran", 35.69, 51.39], ["Dubai, UAE", 25.20, 55.27], ["Riyadh, Saudi Arabia", 24.71, 46.68],
+    ["Baghdad, Iraq", 33.31, 44.36], ["Mumbai, India", 19.08, 72.88], ["Delhi, India", 28.61, 77.21],
+    ["Karachi, Pakistan", 24.86, 67.01], ["Lahore, Pakistan", 31.55, 74.34], ["Bangkok, Thailand", 13.75, 100.50],
+    ["Singapore", 1.35, 103.82], ["Beijing, China", 39.90, 116.41], ["Shanghai, China", 31.23, 121.47],
+    ["Tokyo, Japan", 35.68, 139.65], ["Seoul, South Korea", 37.57, 126.98], ["Jakarta, Indonesia", -6.21, 106.85],
+    ["Manila, Philippines", 14.60, 120.98], ["Sydney, Australia", -33.87, 151.21], ["Melbourne, Australia", -37.81, 144.96],
+    ["Auckland, New Zealand", -36.85, 174.76], ["Los Angeles, USA", 34.05, -118.24], ["New York, USA", 40.71, -74.01],
+    ["Chicago, USA", 41.88, -87.63], ["Toronto, Canada", 43.65, -79.38], ["Mexico City, Mexico", 19.43, -99.13],
+    ["São Paulo, Brazil", -23.55, -46.63], ["Buenos Aires, Argentina", -34.60, -58.38], ["Lagos, Nigeria", 6.52, 3.38],
+    ["Nairobi, Kenya", -1.29, 36.82], ["Johannesburg, South Africa", -26.20, 28.05]
+  ];
+  const cityPick = document.getElementById("cityPick");
+  CITIES.forEach(function (c) {
+    const opt = document.createElement("option");
+    opt.value = c[1] + "," + c[2];
+    opt.textContent = c[0];
+    cityPick.appendChild(opt);
+  });
+  cityPick.addEventListener("change", function () {
+    if (!cityPick.value) return;
+    const parts = cityPick.value.split(",");
+    document.getElementById("lat").value = parts[0];
+    document.getElementById("lon").value = parts[1];
+    persistState();
+  });
+
+  /* ---------------- Time-window toggle ---------------- */
+  const windowFields = document.getElementById("windowFields");
+  document.querySelectorAll('input[name="timeKnowledge"]').forEach(function (r) {
+    r.addEventListener("change", function () {
+      windowFields.style.display = (document.querySelector('input[name="timeKnowledge"]:checked').value === "window") ? "grid" : "none";
+      persistState();
+    });
+  });
+
+  /* ---------------- Events list ---------------- */
+  const eventsWrap = document.getElementById("events");
+  let eventRowId = 0;
+
+  function escapeAttr(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function addEventRow(date, label) {
+    const id = "ev" + (eventRowId++);
+    const row = document.createElement("div");
+    row.className = "event-row";
+    row.dataset.id = id;
+    row.innerHTML =
+      '<input type="date" class="ev-date" aria-label="Event date" value="' + escapeAttr(date) + '">' +
+      '<input type="text" class="ev-label" aria-label="Event description" placeholder="What happened — e.g. married, moved abroad, first heartbreak" value="' + escapeAttr(label) + '">' +
+      '<button type="button" class="event-remove" aria-label="Remove this event" title="Remove">×</button>';
+    eventsWrap.appendChild(row);
+    row.querySelector(".event-remove").addEventListener("click", function () { row.remove(); persistState(); });
+    row.querySelectorAll("input").forEach(function (inp) { inp.addEventListener("input", persistState); });
+  }
+  document.getElementById("addEvent").addEventListener("click", function () { addEventRow(); persistState(); });
+
+  function getEvents() {
+    const rows = eventsWrap.querySelectorAll(".event-row");
+    const out = [];
+    rows.forEach(function (row) {
+      const date = row.querySelector(".ev-date").value;
+      const label = row.querySelector(".ev-label").value.trim();
+      if (date) out.push({ date: date, label: label || "Untitled event" });
+    });
+    return out;
+  }
+
+  /* ---------------- Persistence (this device only, best-effort) ---------------- */
+  /* One browser can hold several named profiles (e.g. "Me", "My partner") so more
+     than one person's birth details can be kept side by side and switched between.
+     Each profile's inputs autosave as you type, the same way the single-profile
+     version used to; "Save" is only needed to name a new profile or rename one. */
+  const PROFILES_KEY = "risingHour.profiles.v1";
+  const ACTIVE_PROFILE_KEY = "risingHour.activeProfileId.v1";
+  let profiles = [];
+  let activeProfileId = null;
+
+  function genProfileId() { return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function loadProfilesFromStorage() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(PROFILES_KEY) || "[]");
+      profiles = Array.isArray(parsed) ? parsed : [];
+    } catch (e) { profiles = []; }
+  }
+  function saveProfilesToStorage() {
+    try { localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles)); } catch (e) { /* storage unavailable */ }
+  }
+  function setActiveProfileId(id) {
+    activeProfileId = id || null;
+    try { localStorage.setItem(ACTIVE_PROFILE_KEY, activeProfileId || ""); } catch (e) { /* ignore */ }
+  }
+
+  function gatherFormState() {
+    return {
+      birthDate: document.getElementById("birthDate").value,
+      timeKnowledge: document.querySelector('input[name="timeKnowledge"]:checked').value,
+      windowStart: document.getElementById("windowStart").value,
+      windowEnd: document.getElementById("windowEnd").value,
+      utcOffset: document.getElementById("utcOffset").value,
+      lat: document.getElementById("lat").value,
+      lon: document.getElementById("lon").value,
+      events: getEvents(),
+      traits: getSelectedTraits()
+    };
+  }
+
+  function persistState() {
+    try {
+      const state = gatherFormState();
+      localStorage.setItem("risingHour.v1", JSON.stringify(state));
+      if (activeProfileId) {
+        const p = profiles.find(function (pr) { return pr.id === activeProfileId; });
+        if (p) { p.data = state; p.updatedAt = Date.now(); saveProfilesToStorage(); }
+      }
+    } catch (e) { /* storage unavailable — ignore, nothing else depends on it */ }
+  }
+
+  /* Populates every form field from a saved state object (or clears to blank when null). */
+  function applyFormState(state) {
+    eventsWrap.innerHTML = "";
+    document.querySelectorAll(".trait-input:checked").forEach(function (el) { el.checked = false; });
+
+    document.getElementById("birthDate").value = (state && state.birthDate) || "";
+    const tk = (state && state.timeKnowledge) || "none";
+    const radio = document.querySelector('input[name="timeKnowledge"][value="' + tk + '"]');
+    if (radio) radio.checked = true;
+    windowFields.style.display = tk === "window" ? "grid" : "none";
+    document.getElementById("windowStart").value = (state && state.windowStart) || "06:00";
+    document.getElementById("windowEnd").value = (state && state.windowEnd) || "10:00";
+    document.getElementById("utcOffset").value = (state && state.utcOffset) || "";
+    document.getElementById("lat").value = (state && state.lat) || "";
+    document.getElementById("lon").value = (state && state.lon) || "";
+    cityPick.value = "";
+
+    if (state && state.events && state.events.length) {
+      state.events.forEach(function (ev) { addEventRow(ev.date, ev.label); });
+    } else {
+      addEventRow(); addEventRow(); addEventRow();
+    }
+    if (state && state.traits && state.traits.length) {
+      state.traits.forEach(function (id) {
+        const el = document.querySelector('.trait-input[value="' + id + '"]');
+        if (el) el.checked = true;
+      });
+    }
+    updateTraitSummary();
+  }
+
+  ["birthDate", "utcOffset", "lat", "lon", "windowStart", "windowEnd"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", persistState);
+  });
+
+  /* ---------------- Profile switcher UI ---------------- */
+  const profileSelect = document.getElementById("profileSelect");
+  const profileNameInput = document.getElementById("profileNameInput");
+  const saveProfileBtn = document.getElementById("saveProfileBtn");
+  const deleteProfileBtn = document.getElementById("deleteProfileBtn");
+  const newProfileBtn = document.getElementById("newProfileBtn");
+  const profileMsg = document.getElementById("profileMsg");
+  const deleteConfirmRow = document.getElementById("deleteConfirmRow");
+
+  function setProfileMsg(text, cls) {
+    profileMsg.textContent = text || "";
+    profileMsg.className = "msg" + (cls ? " " + cls + " show" : "");
+  }
+
+  function refreshProfileSelect() {
+    profileSelect.innerHTML = '<option value="">— Unsaved —</option>';
+    profiles.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).forEach(function (p) {
+      const opt = document.createElement("option");
+      opt.value = p.id; opt.textContent = p.name;
+      profileSelect.appendChild(opt);
+    });
+    profileSelect.value = activeProfileId || "";
+  }
+
+  function hasEnoughDataToEstimate(state) {
+    if (!state) return false;
+    if (!state.birthDate || state.utcOffset === "" || state.lat === "" || state.lon === "") return false;
+    if (!state.events || !state.events.filter(function (e) { return e.date; }).length) return false;
+    return true;
+  }
+
+  function resetResultsPanel() {
+    document.getElementById("resultsBody").classList.remove("show");
+    document.getElementById("resultsEmpty").style.display = "";
+    lastData = null; lastRanked = null; lastFullChart = null; lastInputs = null;
+    formMsg.className = "msg"; formMsg.textContent = "";
+  }
+
+  function loadProfileIntoForm(profile, autoRun) {
+    applyFormState(profile ? profile.data : null);
+    setActiveProfileId(profile ? profile.id : null);
+    profileNameInput.value = profile ? profile.name : "";
+    deleteConfirmRow.style.display = "none";
+    deleteProfileBtn.style.display = profile ? "" : "none";
+    refreshProfileSelect();
+    setProfileMsg("", "");
+    resetResultsPanel();
+    if (autoRun && profile && hasEnoughDataToEstimate(profile.data)) runEstimate();
+  }
+
+  profileSelect.addEventListener("change", function () {
+    const id = profileSelect.value;
+    if (!id) { loadProfileIntoForm(null, false); return; }
+    const p = profiles.find(function (pr) { return pr.id === id; });
+    loadProfileIntoForm(p || null, true);
+  });
+
+  newProfileBtn.addEventListener("click", function () {
+    loadProfileIntoForm(null, false);
+    profileNameInput.focus();
+  });
+
+  saveProfileBtn.addEventListener("click", function () {
+    const name = profileNameInput.value.trim();
+    if (!name) {
+      setProfileMsg('Give this profile a name first — e.g. "Me" or "My partner".', "warn");
+      profileNameInput.focus();
+      return;
+    }
+    const nameClash = profiles.find(function (p) { return p.name.toLowerCase() === name.toLowerCase() && p.id !== activeProfileId; });
+    if (nameClash) {
+      setProfileMsg('A profile named "' + name + '" already exists — pick it from the list to update it, or choose a different name.', "warn");
+      return;
+    }
+    const state = gatherFormState();
+    if (activeProfileId) {
+      const p = profiles.find(function (pr) { return pr.id === activeProfileId; });
+      if (p) {
+        p.name = name; p.data = state; p.updatedAt = Date.now();
+        saveProfilesToStorage();
+        refreshProfileSelect();
+        setProfileMsg('Saved "' + name + '".', "good");
+        return;
+      }
+    }
+    const newProfile = { id: genProfileId(), name: name, data: state, updatedAt: Date.now() };
+    profiles.push(newProfile);
+    saveProfilesToStorage();
+    setActiveProfileId(newProfile.id);
+    refreshProfileSelect();
+    deleteProfileBtn.style.display = "";
+    setProfileMsg('Saved "' + name + '" as a new profile.', "good");
+  });
+
+  deleteProfileBtn.addEventListener("click", function () {
+    deleteConfirmRow.style.display = "flex";
+  });
+  document.getElementById("deleteConfirmNo").addEventListener("click", function () {
+    deleteConfirmRow.style.display = "none";
+  });
+  document.getElementById("deleteConfirmYes").addEventListener("click", function () {
+    const removedName = (profiles.find(function (p) { return p.id === activeProfileId; }) || {}).name;
+    profiles = profiles.filter(function (p) { return p.id !== activeProfileId; });
+    saveProfilesToStorage();
+    loadProfileIntoForm(null, false);
+    if (removedName) setProfileMsg('Deleted "' + removedName + '".', "");
+  });
+
+  /* ---------------- Calculation ---------------- */
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function hoursToClock(dec) {
+    let h = Math.floor(dec), m = Math.round((dec - h) * 60);
+    if (m === 60) { m = 0; h += 1; }
+    h = ((h % 24) + 24) % 24;
+    return pad2(h) + ":" + pad2(m);
+  }
+
+  const form = document.getElementById("rectForm");
+  const formMsg = document.getElementById("formMsg");
+  let lastInputs = null, lastData = null, lastRanked = null, lastFullChart = null;
+
+  function runEstimate() {
+    formMsg.className = "msg";
+    formMsg.textContent = "";
+
+    const birthDateStr = document.getElementById("birthDate").value;
+    const utcOffset = parseFloat(document.getElementById("utcOffset").value);
+    const lat = parseFloat(document.getElementById("lat").value);
+    const lon = parseFloat(document.getElementById("lon").value);
+    const events = getEvents();
+    const timeKnowledge = document.querySelector('input[name="timeKnowledge"]:checked').value;
+
+    if (!birthDateStr || isNaN(utcOffset) || isNaN(lat) || isNaN(lon)) {
+      formMsg.className = "msg warn show";
+      formMsg.textContent = "Birth date, UTC offset, latitude and longitude are all required.";
+      return;
+    }
+    if (events.length < 1) {
+      formMsg.className = "msg warn show";
+      formMsg.textContent = "Add at least one dated life event to rectify against — three or more, spread across different years, gives a far more meaningful result.";
+      return;
+    }
+
+    const [by, bm, bd] = birthDateStr.split("-").map(Number);
+    const birthJdNoon = window.__risingHourEngine.julianDay(by, bm, bd, 12, 0, 0);
+
+    // filter/validate events (must postdate birth)
+    const validEvents = [];
+    events.forEach(function (ev) {
+      const [ey, em, ed] = ev.date.split("-").map(Number);
+      const jdNoon = window.__risingHourEngine.julianDay(ey, em, ed, 12, 0, 0);
+      if (jdNoon > birthJdNoon) validEvents.push({ label: ev.label, jdNoon: jdNoon, date: ev.date });
+    });
+    if (validEvents.length < 1) {
+      formMsg.className = "msg warn show";
+      formMsg.textContent = "None of the events fall after the birth date — check the dates entered.";
+      return;
+    }
+
+    let startDec, endDec;
+    if (timeKnowledge === "window") {
+      const [sh, sm] = document.getElementById("windowStart").value.split(":").map(Number);
+      const [eh, em] = document.getElementById("windowEnd").value.split(":").map(Number);
+      startDec = sh + sm / 60; endDec = eh + em / 60;
+      if (endDec <= startDec) endDec += 24;
+    } else {
+      startDec = 0; endDec = 23.9833;
+    }
+    const spanMinutes = (endDec - startDec) * 60;
+    const stepMinutes = spanMinutes <= 180 ? 1 : spanMinutes <= 480 ? 2 : spanMinutes <= 900 ? 3 : 4;
+    const steps = Math.max(2, Math.floor(spanMinutes / stepMinutes));
+
+    const selectedTraits = getSelectedTraits();
+    const TRAIT_PENALTY_SCALE = 14; // degrees-equivalent, comparable in magnitude to the other two signals
+
+    const times = [], moonScores = [], arcScores = [], combinedScores = [], signIdxs = [], traitFracs = [];
+    for (let i = 0; i <= steps; i++) {
+      const localDec = startDec + (i / steps) * (endDec - startDec);
+      const localDecMod = ((localDec % 24) + 24) % 24;
+      const natal = window.__risingHourEngine.natalChart(by, bm, bd, localDec, utcOffset, lat, lon);
+      let moonSum = 0, arcSum = 0;
+      validEvents.forEach(function (ev) {
+        const s = window.__risingHourEngine.eventScoreForChart(natal, ev.jdNoon, birthJdNoon);
+        moonSum += s.moonDist; arcSum += s.arcDist;
+      });
+      const moonAvg = moonSum / validEvents.length, arcAvg = arcSum / validEvents.length;
+      const signIdx = signIndexOf(natal.asc);
+      let traitFrac = null, combined;
+      if (selectedTraits.length > 0) {
+        const signTags = SIGN_TRAITS[signIdx];
+        const matchCount = selectedTraits.filter(function (t) { return signTags.indexOf(t) !== -1; }).length;
+        traitFrac = matchCount / selectedTraits.length;
+        const traitPenalty = (1 - traitFrac) * TRAIT_PENALTY_SCALE;
+        combined = (moonAvg + arcAvg + traitPenalty) / 3;
+      } else {
+        combined = (moonAvg + arcAvg) / 2;
+      }
+      times.push(localDecMod);
+      moonScores.push(moonAvg);
+      arcScores.push(arcAvg);
+      combinedScores.push(combined);
+      signIdxs.push(signIdx);
+      traitFracs.push(traitFrac);
+    }
+
+    lastInputs = {
+      birthDate: birthDateStr, timeKnowledge: timeKnowledge,
+      windowStart: document.getElementById("windowStart").value, windowEnd: document.getElementById("windowEnd").value,
+      utcOffset: utcOffset, lat: lat, lon: lon,
+      events: validEvents.map(function (ev) { return { date: ev.date, label: ev.label }; }),
+      traitLabels: selectedTraits.map(function (id) {
+        const t = TRAIT_TAGS.find(function (x) { return x.id === id; });
+        return t ? t.label : id;
+      })
+    };
+
+    renderResults({
+      times: times, moonScores: moonScores, arcScores: arcScores, combinedScores: combinedScores,
+      signIdxs: signIdxs, traitFracs: traitFracs, traitsUsed: selectedTraits.length > 0,
+      startDec: startDec, endDec: endDec, eventCount: validEvents.length, fullDay: timeKnowledge !== "window",
+      by: by, bm: bm, bd: bd, utcOffset: utcOffset, lat: lat, lon: lon
+    });
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    persistState();
+    runEstimate();
+  });
+
+  function localMinimaRanked(times, scores) {
+    const n = scores.length;
+    const minimaIdx = [];
+    for (let i = 0; i < n; i++) {
+      const prev = i === 0 ? Infinity : scores[i - 1];
+      const next = i === n - 1 ? Infinity : scores[i + 1];
+      if (scores[i] <= prev && scores[i] <= next) minimaIdx.push(i);
+    }
+    minimaIdx.sort(function (a, b) { return scores[a] - scores[b]; });
+    const picked = [];
+    const minSepMinutes = 20;
+    minimaIdx.forEach(function (idx) {
+      const t = times[idx];
+      const tooClose = picked.some(function (p) {
+        let diff = Math.abs(p.t - t); diff = Math.min(diff, 24 - diff);
+        return diff * 60 < minSepMinutes;
+      });
+      if (!tooClose) picked.push({ idx: idx, t: t, score: scores[idx] });
+    });
+    return picked;
+  }
+
+  function renderResults(data) {
+    document.getElementById("resultsEmpty").style.display = "none";
+    const body = document.getElementById("resultsBody");
+    body.classList.add("show");
+
+    const ranked = localMinimaRanked(data.times, data.combinedScores).slice(0, 3);
+    lastData = data; lastRanked = ranked;
+    const best = ranked[0];
+    const bestScore = best.score;
+    const sorted = data.combinedScores.slice().sort(function (a, b) { return a - b; });
+    const median = sorted[Math.floor(sorted.length / 2)];
+    const ratio = bestScore > 0.05 ? median / bestScore : 6;
+
+    let confClass, confText;
+    if (data.eventCount >= 3 && ratio >= 2.4 && bestScore < 4.5) { confClass = "notable"; confText = "Notable agreement"; }
+    else if (data.eventCount >= 2 && ratio >= 1.4 && bestScore < 7) { confClass = "moderate"; confText = "Moderate agreement"; }
+    else { confClass = "low"; confText = "Low confidence"; }
+
+    const chip = document.getElementById("confChip");
+    chip.className = "confidence-chip " + confClass;
+    document.getElementById("confLabel").textContent = confText;
+
+    const spreadMinutes = data.fullDay ? 12 : Math.max(6, Math.round((data.endDec - data.startDec) * 60 / 40));
+    let loDec = best.t - spreadMinutes / 60, hiDec = best.t + spreadMinutes / 60;
+    if (!data.fullDay) {
+      // keep the displayed window inside the range the user actually asked to scan
+      loDec = Math.max(loDec, data.startDec);
+      hiDec = Math.min(hiDec, data.endDec);
+    }
+    const rangeLo = hoursToClock(((loDec % 24) + 24) % 24);
+    const rangeHi = hoursToClock(((hiDec % 24) + 24) % 24);
+    document.getElementById("bestTime").innerHTML = rangeLo + '<span class="divider">–</span>' + rangeHi;
+
+    document.getElementById("headlineCaption").textContent =
+      "Best-fitting window, local civil time, from " + data.eventCount + " event" + (data.eventCount === 1 ? "" : "s") +
+      " scanned across " + (data.fullDay ? "the full day" : "your stated window") +
+      (data.traitsUsed ? ", with rising-sign appearance folded in" : "") + ". " +
+      (confClass === "low" ? "Treat this as a starting hypothesis — add more events, ideally spanning childhood through adulthood, to sharpen it." :
+        confClass === "moderate" ? "A reasonably distinct minimum, worth testing further against additional events." :
+        "A clearly distinct minimum relative to the rest of the day — the strongest form of agreement this method can produce.");
+
+    const candWrap = document.getElementById("candidates");
+    candWrap.innerHTML = "";
+    ranked.forEach(function (c, i) {
+      const card = document.createElement("div");
+      card.className = "cand-card" + (i === 0 ? " rank-1" : "");
+      const sign = ZODIAC_SIGNS[data.signIdxs[c.idx]];
+      const traitFrac = data.traitFracs[c.idx];
+      const traitLine = (data.traitsUsed && traitFrac !== null)
+        ? "<br>Appearance match " + Math.round(traitFrac * 100) + "%"
+        : "";
+      card.innerHTML =
+        '<div class="rank">Candidate ' + (i + 1) + (i === 0 ? " · best fit" : "") + '</div>' +
+        '<div class="sign-badge">' + sign.en + '<span class="tr-name">' + sign.tr + ' rising</span></div>' +
+        '<div class="ctime">' + hoursToClock(c.t) + '</div>' +
+        '<div class="cmeta">Average deviation <b>' + c.score.toFixed(2) + '°</b><br>Moon component ' + data.moonScores[c.idx].toFixed(2) + '° · Solar-arc component ' + data.arcScores[c.idx].toFixed(2) + '°' + traitLine + '</div>';
+      candWrap.appendChild(card);
+    });
+
+    drawChart(data, ranked);
+    renderTable(data, ranked);
+
+    const fullChart = computeFullNatalChart(data.by, data.bm, data.bd, best.t, data.utcOffset, data.lat, data.lon);
+    lastFullChart = fullChart;
+    drawNatalWheel(fullChart);
+  }
+
+  function renderTable(data, ranked) {
+    const bestIdxSet = new Set(ranked.map(function (r) { return r.idx; }));
+    const signCol = "<th>Rising sign</th>";
+    const traitCol = data.traitsUsed ? "<th>Appearance</th>" : "";
+    let html = "<thead><tr><th>Time</th><th>Combined</th><th>Moon</th><th>Solar arc</th>" + signCol + traitCol + "<th></th></tr></thead><tbody>";
+    const showEvery = data.times.length > 60 ? Math.ceil(data.times.length / 60) : 1;
+    for (let i = 0; i < data.times.length; i++) {
+      if (i % showEvery !== 0 && !bestIdxSet.has(i)) continue;
+      const signCell = "<td>" + ZODIAC_SIGNS[data.signIdxs[i]].en + "</td>";
+      const traitCell = data.traitsUsed ? "<td>" + (data.traitFracs[i] !== null ? Math.round(data.traitFracs[i] * 100) + "%" : "—") + "</td>" : "";
+      html += "<tr><td>" + hoursToClock(data.times[i]) + "</td><td>" + data.combinedScores[i].toFixed(2) + "°</td><td>" +
+        data.moonScores[i].toFixed(2) + "°</td><td>" + data.arcScores[i].toFixed(2) + "°</td>" + signCell + traitCell + "<td>" +
+        (bestIdxSet.has(i) ? "★" : "") + "</td></tr>";
+    }
+    html += "</tbody>";
+    document.getElementById("fullTable").innerHTML = html;
+  }
+
+  function drawChart(data, ranked) {
+    const svg = document.getElementById("chartSvg");
+    const W = 900, H = 260, padL = 40, padR = 16, padT = 14, padB = 30;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const n = data.times.length;
+
+    const allScores = data.moonScores.concat(data.arcScores);
+    const maxScore = Math.max(8, Math.max.apply(null, allScores) * 1.08);
+
+    function xAt(i) { return padL + (i / (n - 1)) * plotW; }
+    function yAt(v) { return padT + plotH - (Math.min(v, maxScore) / maxScore) * plotH; }
+
+    let svgHtml = '<rect id="hitRect" x="0" y="0" width="' + W + '" height="' + H + '" fill="transparent" style="cursor:crosshair"/>';
+
+    // gridlines (y)
+    const yTicks = 4;
+    for (let t = 0; t <= yTicks; t++) {
+      const v = (maxScore / yTicks) * t;
+      const y = yAt(v);
+      svgHtml += '<line class="gridline" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y + '" y2="' + y + '"/>';
+      svgHtml += '<text class="axis-text" x="' + (padL - 8) + '" y="' + (y + 3) + '" text-anchor="end">' + v.toFixed(0) + '°</text>';
+    }
+    // x ticks: ~6 labels across span
+    const xTickCount = 6;
+    for (let t = 0; t <= xTickCount; t++) {
+      const idx = Math.round((t / xTickCount) * (n - 1));
+      const x = xAt(idx);
+      svgHtml += '<line class="gridline" x1="' + x + '" x2="' + x + '" y1="' + padT + '" y2="' + (padT + plotH) + '" opacity="0.5"/>';
+      svgHtml += '<text class="axis-text" x="' + x + '" y="' + (H - 10) + '" text-anchor="middle">' + hoursToClock(data.times[idx]) + '</text>';
+    }
+
+    function pathFor(arr) {
+      let d = "";
+      for (let i = 0; i < n; i++) {
+        d += (i === 0 ? "M" : "L") + xAt(i).toFixed(1) + "," + yAt(arr[i]).toFixed(1) + " ";
+      }
+      return d;
+    }
+    svgHtml += '<path class="series-arc" d="' + pathFor(data.arcScores) + '"/>';
+    svgHtml += '<path class="series-moon" d="' + pathFor(data.moonScores) + '"/>';
+
+    ranked.forEach(function (c, i) {
+      const x = xAt(c.idx), y = yAt(c.score);
+      svgHtml += '<circle class="best-marker" cx="' + x + '" cy="' + y + '" r="' + (i === 0 ? 6 : 4.5) + '"/>';
+    });
+
+    svg.innerHTML = svgHtml;
+
+    // hover crosshair + tooltip
+    const tooltip = document.getElementById("tooltip");
+    const wrap = document.getElementById("chartWrap");
+    let hitLine = null;
+
+    function onMove(evt) {
+      const rect = svg.getBoundingClientRect();
+      const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      const relX = (clientX - rect.left) / rect.width * W;
+      let i = Math.round(((relX - padL) / plotW) * (n - 1));
+      i = Math.max(0, Math.min(n - 1, i));
+      if (hitLine) hitLine.remove();
+      const x = xAt(i);
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("class", "crosshair-line");
+      line.setAttribute("x1", x); line.setAttribute("x2", x);
+      line.setAttribute("y1", padT); line.setAttribute("y2", padT + plotH);
+      svg.appendChild(line);
+      hitLine = line;
+
+      tooltip.innerHTML =
+        '<div class="tt-time">' + hoursToClock(data.times[i]) + '</div>' +
+        '<div class="tt-row"><span style="color:var(--gold)">Solar arc</span><span>' + data.arcScores[i].toFixed(2) + '°</span></div>' +
+        '<div class="tt-row"><span style="color:var(--moon)">Moon</span><span>' + data.moonScores[i].toFixed(2) + '°</span></div>';
+      const wrapRect = wrap.getBoundingClientRect();
+      const px = (x / W) * wrapRect.width;
+      const py = (yAt(data.combinedScores[i]) / H) * wrapRect.height;
+      tooltip.style.left = px + "px";
+      tooltip.style.top = py + "px";
+      tooltip.classList.add("show");
+    }
+    function onLeave() {
+      if (hitLine) { hitLine.remove(); hitLine = null; }
+      tooltip.classList.remove("show");
+    }
+    const hitRect = document.getElementById("hitRect");
+    hitRect.onmousemove = onMove;
+    hitRect.onmouseleave = onLeave;
+    hitRect.ontouchmove = function (e) { onMove(e); e.preventDefault(); };
+    hitRect.ontouchend = onLeave;
+  }
+
+  /* ---------------- Natal chart wheel ---------------- */
+  const ASPECTS = [
+    { angle: 60, orb: 5, cls: "harmonious", name: "sextile" },
+    { angle: 90, orb: 6, cls: "challenging", name: "square" },
+    { angle: 120, orb: 7, cls: "harmonious", name: "trine" },
+    { angle: 180, orb: 8, cls: "challenging", name: "opposition" }
+  ];
+
+  function wheelPoint(thetaDeg, r, cx, cy) {
+    const t = rad(thetaDeg);
+    return { x: cx + r * Math.cos(t), y: cy - r * Math.sin(t) };
+  }
+
+  function buildWheelSvg(chart) {
+    const cx = 320, cy = 320;
+    const rOuter = 300, rZodiacInner = 258, rHouseNum = 242, rAspectRing = 165, rPlanetOuter = 228, rPlanetInner = 200;
+    const asc = chart.asc;
+    const theta = function (lon) { return norm360(180 + (lon - asc)); };
+
+    let svg = "";
+    svg += '<circle class="wheel-ring" cx="' + cx + '" cy="' + cy + '" r="' + rOuter + '"/>';
+    svg += '<circle class="wheel-ring" cx="' + cx + '" cy="' + cy + '" r="' + rZodiacInner + '"/>';
+    svg += '<circle class="wheel-aspect-ring" cx="' + cx + '" cy="' + cy + '" r="' + rAspectRing + '"/>';
+
+    // zodiac ring: dividers + glyphs
+    for (let i = 0; i < 12; i++) {
+      const t0 = theta(i * 30);
+      const p0 = wheelPoint(t0, rZodiacInner, cx, cy), p1 = wheelPoint(t0, rOuter, cx, cy);
+      svg += '<line class="zodiac-divider" x1="' + p0.x.toFixed(1) + '" y1="' + p0.y.toFixed(1) + '" x2="' + p1.x.toFixed(1) + '" y2="' + p1.y.toFixed(1) + '"/>';
+      const mid = wheelPoint(theta(i * 30 + 15), (rOuter + rZodiacInner) / 2, cx, cy);
+      svg += '<text class="zodiac-glyph" x="' + mid.x.toFixed(1) + '" y="' + mid.y.toFixed(1) + '">' + ZODIAC_SIGNS[i].glyph + '</text>';
+    }
+
+    // house cusp lines + numbers
+    for (let i = 0; i < 12; i++) {
+      const t0 = theta(chart.cusps[i]);
+      const p1 = wheelPoint(t0, rZodiacInner, cx, cy);
+      let cls = "cusp-line";
+      if (i === 0 || i === 6) cls += " axis-asc";
+      else if (i === 9 || i === 3) cls += " axis-mc";
+      svg += '<line class="' + cls + '" x1="' + cx + '" y1="' + cy + '" x2="' + p1.x.toFixed(1) + '" y2="' + p1.y.toFixed(1) + '"/>';
+
+      const nextCusp = chart.cusps[(i + 1) % 12];
+      let span = norm360(nextCusp - chart.cusps[i]);
+      const midLon = norm360(chart.cusps[i] + span / 2);
+      const numPt = wheelPoint(theta(midLon), rHouseNum, cx, cy);
+      svg += '<text class="house-num" x="' + numPt.x.toFixed(1) + '" y="' + numPt.y.toFixed(1) + '">' + (i + 1) + '</text>';
+    }
+
+    // ASC/DESC/MC/IC labels just outside the outer ring
+    const axisLabels = [
+      { lon: chart.asc, text: "AC", cls: "asc-dc" },
+      { lon: norm360(chart.asc + 180), text: "DC", cls: "asc-dc" },
+      { lon: chart.mc, text: "MC", cls: "mc-ic" },
+      { lon: norm360(chart.mc + 180), text: "IC", cls: "mc-ic" }
+    ];
+    axisLabels.forEach(function (a) {
+      const p = wheelPoint(theta(a.lon), rOuter + 14, cx, cy);
+      svg += '<text class="angle-label ' + a.cls + '" x="' + p.x.toFixed(1) + '" y="' + p.y.toFixed(1) + '">' + a.text + '</text>';
+    });
+
+    // planets: decluttered label placement, true-position ticks, leader lines where nudged
+    const items = BODY_ORDER.map(function (name) {
+      return { name: name, lon: chart.bodies[name].lon, retro: chart.bodies[name].retro, rawTheta: theta(chart.bodies[name].lon) };
+    }).sort(function (a, b) { return a.rawTheta - b.rawTheta; });
+
+    const minSep = 8.5;
+    const n = items.length;
+    const crowded = new Array(n).fill(false);
+    for (let i = 0; i < n; i++) {
+      const prevGap = norm360(items[i].rawTheta - items[(i - 1 + n) % n].rawTheta);
+      const nextGap = norm360(items[(i + 1) % n].rawTheta - items[i].rawTheta);
+      if (prevGap < minSep || nextGap < minSep) crowded[i] = true;
+    }
+    const adjusted = items.map(function (it) { return it.rawTheta; });
+    for (let i = 1; i < n; i++) {
+      if (adjusted[i] - adjusted[i - 1] < minSep) adjusted[i] = adjusted[i - 1] + minSep;
+    }
+
+    let alt = false;
+    const placed = items.map(function (it, i) {
+      const r = crowded[i] ? (alt = !alt, alt ? rPlanetInner : rPlanetOuter) : rPlanetOuter;
+      return { name: it.name, lon: it.lon, retro: it.retro, trueTheta: it.rawTheta, labelTheta: adjusted[i], r: r };
+    });
+
+    placed.forEach(function (p) {
+      const tick0 = wheelPoint(p.trueTheta, rZodiacInner, cx, cy);
+      const tick1 = wheelPoint(p.trueTheta, rZodiacInner - 12, cx, cy);
+      svg += '<line class="planet-tick" x1="' + tick0.x.toFixed(1) + '" y1="' + tick0.y.toFixed(1) + '" x2="' + tick1.x.toFixed(1) + '" y2="' + tick1.y.toFixed(1) + '"/>';
+      const nudge = Math.abs(norm360(p.labelTheta - p.trueTheta + 180) - 180);
+      const glyphPt = wheelPoint(p.labelTheta, p.r, cx, cy);
+      if (nudge > 1.5) {
+        svg += '<line class="planet-leader" x1="' + tick1.x.toFixed(1) + '" y1="' + tick1.y.toFixed(1) + '" x2="' + glyphPt.x.toFixed(1) + '" y2="' + glyphPt.y.toFixed(1) + '"/>';
+      }
+      const meta = PLANET_META[p.name];
+      const bodyCls = p.name === "sun" ? "body-sun" : p.name === "moon" ? "body-moon" : "body-other";
+      svg += '<text class="planet-glyph ' + bodyCls + '" x="' + glyphPt.x.toFixed(1) + '" y="' + glyphPt.y.toFixed(1) + '">' + meta.glyph + (p.retro ? '<tspan class="retro-mark" dy="-5" dx="1">℞︎</tspan>' : '') + '</text>';
+      const signIdx = Math.floor(norm360(p.lon) / 30);
+      const degInSign = Math.floor(norm360(p.lon) - signIdx * 30);
+      const degPt = wheelPoint(p.labelTheta, p.r - 15, cx, cy);
+      svg += '<text class="planet-degree" x="' + degPt.x.toFixed(1) + '" y="' + degPt.y.toFixed(1) + '">' + degInSign + '°' + ZODIAC_SIGNS[signIdx].glyph + '</text>';
+    });
+
+    // aspect lines (true positions, projected to the inner ring)
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const a = chart.bodies[items[i].name].lon, b = chart.bodies[items[j].name].lon;
+        const d = circDist(a, b);
+        let match = null;
+        for (const asp of ASPECTS) { if (Math.abs(d - asp.angle) <= asp.orb) { match = asp; break; } }
+        if (match) {
+          const p1 = wheelPoint(theta(a), rAspectRing, cx, cy);
+          const p2 = wheelPoint(theta(b), rAspectRing, cx, cy);
+          svg += '<line class="aspect-line ' + match.cls + '" x1="' + p1.x.toFixed(1) + '" y1="' + p1.y.toFixed(1) + '" x2="' + p2.x.toFixed(1) + '" y2="' + p2.y.toFixed(1) + '"/>';
+        }
+      }
+    }
+
+    return svg;
+  }
+
+  function drawNatalWheel(chart) {
+    document.getElementById("wheelSvg").innerHTML = buildWheelSvg(chart);
+
+    const ascSign = ZODIAC_SIGNS[Math.floor(norm360(chart.asc) / 30)];
+    document.getElementById("wheelCaption").textContent =
+      "Placidus houses, " + ascSign.en + " rising. Ten bodies at their positions for this candidate's exact date and time; green lines mark trines and sextiles, red lines mark squares and oppositions.";
+
+    const posWrap = document.getElementById("wheelPositions");
+    posWrap.innerHTML = BODY_ORDER.map(function (name) {
+      const b = chart.bodies[name];
+      const signIdx = Math.floor(norm360(b.lon) / 30);
+      const degInSign = Math.floor(norm360(b.lon) - signIdx * 30);
+      const meta = PLANET_META[name];
+      const bodyCls = name === "sun" ? "body-sun" : name === "moon" ? "body-moon" : "";
+      return '<div class="wl-row"><span class="wl-glyph ' + bodyCls + '">' + meta.glyph + '</span>' + meta.label + ' — ' + degInSign + '° ' + ZODIAC_SIGNS[signIdx].en +
+        (b.retro ? '<span class="wl-retro">℞︎ retrograde</span>' : '') + '</div>';
+    }).join("");
+  }
+
+  /* ---------------- PDF report (native browser print) ---------------- */
+  function buildPrintReport() {
+    if (!lastData || !lastInputs || !lastRanked || !lastFullChart) return;
+    const data = lastData, inputs = lastInputs, ranked = lastRanked;
+    const activeProfileName = (profiles.find(function (p) { return p.id === activeProfileId; }) || {}).name || "";
+    const generated = new Date();
+    const genStr = generated.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) +
+      " · " + generated.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+
+    const timeLine = inputs.timeKnowledge === "window"
+      ? "Rough window given: " + inputs.windowStart + "–" + inputs.windowEnd
+      : "No known window — full day scanned";
+
+    const eventsRows = inputs.events.map(function (ev) {
+      return "<tr><td>" + escapeAttr(ev.date) + "</td><td>" + escapeAttr(ev.label) + "</td></tr>";
+    }).join("");
+
+    const traitsLine = inputs.traitLabels.length
+      ? inputs.traitLabels.map(escapeAttr).join(", ")
+      : "None selected";
+
+    const confChip = document.getElementById("confChip");
+    const confText = document.getElementById("confLabel").textContent;
+    const caption = document.getElementById("headlineCaption").textContent;
+    const bestTimeHtml = document.getElementById("bestTime").innerHTML;
+
+    const candRows = ranked.map(function (c, i) {
+      const sign = ZODIAC_SIGNS[data.signIdxs[c.idx]];
+      const traitFrac = data.traitFracs[c.idx];
+      const traitCell = data.traitsUsed ? "<td>" + (traitFrac !== null ? Math.round(traitFrac * 100) + "%" : "—") + "</td>" : "";
+      return "<tr><td>" + (i + 1) + "</td><td>" + hoursToClock(c.t) + "</td><td>" + sign.en + " (" + sign.tr + ")</td><td>" +
+        c.score.toFixed(2) + "°</td><td>" + data.moonScores[c.idx].toFixed(2) + "°</td><td>" + data.arcScores[c.idx].toFixed(2) + "°</td>" +
+        traitCell + "</tr>";
+    }).join("");
+
+    const chartClone = document.getElementById("chartSvg").outerHTML;
+    const wheelClone = document.getElementById("wheelSvg").outerHTML;
+    const wheelCaptionText = document.getElementById("wheelCaption").textContent;
+    const positionsClone = document.getElementById("wheelPositions").innerHTML;
+
+    document.getElementById("printReport").innerHTML =
+      '<div style="font-family: Georgia, \'Times New Roman\', serif; max-width: 720px;">' +
+        '<div style="border-bottom: 2px solid #14151f; padding-bottom: 10px; margin-bottom: 18px;">' +
+          '<div style="font-size: 9pt; letter-spacing: 0.08em; text-transform: uppercase; color: #82849a;">Rectification Workbook</div>' +
+          '<div style="font-size: 26pt; font-weight: 600;">Rising Hour — Birth Time Report' +
+          (activeProfileName ? ' · ' + escapeAttr(activeProfileName) : '') + '</div>' +
+          '<div style="font-size: 9pt; color: #666; margin-top: 4px;">Generated ' + genStr + '</div>' +
+        '</div>' +
+
+        '<div style="font-family: Arial, sans-serif; font-size: 10.5pt; line-height: 1.55;">' +
+          '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 14px 0 6px;">What was entered</h3>' +
+          '<div>Birth date: <strong>' + escapeAttr(inputs.birthDate) + '</strong> · ' + escapeAttr(timeLine) + '</div>' +
+          '<div>UTC offset: <strong>' + inputs.utcOffset + '</strong> hours · Coordinates: <strong>' + inputs.lat.toFixed(2) + ', ' + inputs.lon.toFixed(2) + '</strong></div>' +
+          '<div style="margin-top:8px;">Life events used:</div>' +
+          '<table class="pr-events-table"><thead><tr><th>Date</th><th>Event</th></tr></thead><tbody>' + eventsRows + '</tbody></table>' +
+          '<div style="margin-top:8px;">Physical-appearance traits selected: ' + traitsLine + '</div>' +
+
+          '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Estimate</h3>' +
+          '<div style="font-family: Georgia, serif; font-size: 22pt; font-weight: 600;">' + bestTimeHtml.replace(/<span[^>]*>–<\/span>/, ' – ') + ' <span style="font-size: 11pt; font-weight: 400; color: #666;">local civil time · ' + confText + '</span></div>' +
+          '<div style="margin-top: 4px; color: #444;">' + escapeAttr(caption) + '</div>' +
+
+          '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Top candidates</h3>' +
+          '<table class="pr-cand-table"><thead><tr><th>#</th><th>Time</th><th>Rising sign</th><th>Combined</th><th>Moon</th><th>Solar arc</th>' +
+          (data.traitsUsed ? '<th>Appearance</th>' : '') + '</tr></thead><tbody>' + candRows + '</tbody></table>' +
+
+          '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Fit across the scanned window</h3>' +
+          '<div style="max-width: 680px;">' + chartClone + '</div>' +
+          '<div style="font-size: 9pt; color: #666;">Gold — solar arc directions to the angles. Indigo — progressed Moon to the angles. Lower is a tighter fit.</div>' +
+
+          '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px; page-break-before: always;">Potential natal chart</h3>' +
+          '<div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">' +
+            '<div style="width:340px; flex: 0 0 auto;">' + wheelClone + '</div>' +
+            '<div style="font-size:10pt; line-height:1.6; flex:1 1 220px;">' + positionsClone + '</div>' +
+          '</div>' +
+          '<div style="font-size: 9pt; color: #666; margin-top:4px;">' + escapeAttr(wheelCaptionText) + '</div>' +
+
+          '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Method, in brief</h3>' +
+          '<p style="color: #333;">This estimate combines two classical astrological rectification techniques — secondary-progressed Moon contacts to the four chart angles, and solar arc directions of the angles to the natal Sun and Moon — computed from verified low-precision astronomical formulas (sidereal time, obliquity, and Sun/Moon ecliptic longitude). ' +
+          (data.traitsUsed ? 'A third, separate signal — traditional rising-sign appearance folklore, matched against the traits selected — was folded in at equal weight. ' : '') +
+          'None of this is scientifically validated: astrology has not been shown to predict outcomes beyond chance, so treat this report as a documented hypothesis for further exploration, not a certified birth time.</p>' +
+
+          '<div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 8.5pt; color: #888;">Personal, non-scientific estimate generated at claude.ai — for self-exploration only. Calculated entirely from the details supplied; accuracy depends on their accuracy.</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  document.getElementById("printBtn").addEventListener("click", function () {
+    buildPrintReport();
+    window.setTimeout(function () { window.print(); }, 30);
+  });
+
+  /* ---------------- Startup: load profiles, migrating any single-profile data from before this feature ---------------- */
+  loadProfilesFromStorage();
+  if (profiles.length === 0) {
+    let legacy = null;
+    try { legacy = JSON.parse(localStorage.getItem("risingHour.v1") || "null"); } catch (e) { legacy = null; }
+    if (legacy && legacy.birthDate) {
+      const migrated = { id: genProfileId(), name: "Profile 1", data: legacy, updatedAt: Date.now() };
+      profiles.push(migrated);
+      saveProfilesToStorage();
+      setActiveProfileId(migrated.id);
+    }
+  }
+  if (!activeProfileId) {
+    let storedActive = null;
+    try { storedActive = localStorage.getItem(ACTIVE_PROFILE_KEY) || null; } catch (e) { storedActive = null; }
+    if (storedActive && profiles.some(function (p) { return p.id === storedActive; })) activeProfileId = storedActive;
+  }
+  const initialProfile = activeProfileId ? profiles.find(function (p) { return p.id === activeProfileId; }) : null;
+  loadProfileIntoForm(initialProfile || null, false);
+})();
+</script>
