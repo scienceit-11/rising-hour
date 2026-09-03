@@ -1701,7 +1701,8 @@
       times: times, moonScores: moonScores, arcScores: arcScores, combinedScores: combinedScores,
       signIdxs: signIdxs, traitFracs: traitFracs, traitsUsed: selectedTraits.length > 0,
       startDec: startDec, endDec: endDec, eventCount: validEvents.length, fullDay: timeKnowledge !== "window",
-      by: by, bm: bm, bd: bd, utcOffset: utcOffset, lat: lat, lon: lon
+      by: by, bm: bm, bd: bd, utcOffset: utcOffset, lat: lat, lon: lon,
+      validEvents: validEvents, staticBodies: staticBodies, birthJdNoon: birthJdNoon
     });
   }
 
@@ -1731,6 +1732,30 @@
       if (!tooClose) picked.push({ idx: idx, t: t, score: scores[idx] });
     });
     return picked;
+  }
+
+  // How close an event's own deviation needs to be, in degrees, to count as "agreeing"
+  // with a candidate time in the consistency summary below. Same rough scale as the
+  // confidence-chip thresholds (bestScore < 4.5 / < 7) so the two readouts stay comparable.
+  const AGREEMENT_THRESHOLD_DEG = 10;
+
+  // Per-event deviations for one candidate time — lets the UI show whether every event
+  // agrees on this candidate (consistent) or whether the average is being carried by one
+  // or two events while the rest disagree, which a plain mean can't distinguish.
+  function eventDeviationsForCandidate(candNatal, birthJdNoon, validEvents, staticBodies) {
+    return validEvents.map(function (ev) {
+      const s = window.__risingHourEngine.eventScoreForChart(candNatal, ev.jdNoon, birthJdNoon, ev.type, staticBodies);
+      return { label: ev.label, dist: (s.moonDist + s.arcDist) / 2 };
+    });
+  }
+
+  function consistencySummary(deviations) {
+    const dists = deviations.map(function (d) { return d.dist; }).sort(function (a, b) { return a - b; });
+    const n = dists.length;
+    const median = n % 2 === 1 ? dists[(n - 1) / 2] : (dists[n / 2 - 1] + dists[n / 2]) / 2;
+    const agreeCount = dists.filter(function (d) { return d <= AGREEMENT_THRESHOLD_DEG; }).length;
+    const worst = deviations.slice().sort(function (a, b) { return b.dist - a.dist; })[0];
+    return { median: median, agreeCount: agreeCount, total: n, worst: worst };
   }
 
   function renderResults(data) {
@@ -1784,11 +1809,19 @@
       const traitLine = (data.traitsUsed && traitFrac !== null)
         ? "<br>Appearance match " + Math.round(traitFrac * 100) + "%"
         : "";
+      const candNatal = window.__risingHourEngine.natalChart(data.by, data.bm, data.bd, c.t, data.utcOffset, data.lat, data.lon);
+      const deviations = eventDeviationsForCandidate(candNatal, data.birthJdNoon, data.validEvents, data.staticBodies);
+      const consistency = consistencySummary(deviations);
+      const consistencyLine = consistency.total > 1
+        ? "<br>Median " + consistency.median.toFixed(2) + "° · " + consistency.agreeCount + "/" + consistency.total +
+          " events within " + AGREEMENT_THRESHOLD_DEG + "°" +
+          (consistency.worst.dist > AGREEMENT_THRESHOLD_DEG ? " · weakest: " + escapeAttr(consistency.worst.label) + " (" + consistency.worst.dist.toFixed(1) + "°)" : "")
+        : "";
       card.innerHTML =
         '<div class="rank">Candidate ' + (i + 1) + (i === 0 ? " · best fit" : "") + '</div>' +
         '<div class="sign-badge">' + sign.en + '<span class="tr-name">' + sign.tr + ' rising</span></div>' +
         '<div class="ctime">' + hoursToClock(c.t) + '</div>' +
-        '<div class="cmeta">Average deviation <b>' + c.score.toFixed(2) + '°</b><br>Moon component ' + data.moonScores[c.idx].toFixed(2) + '° · Solar-arc component ' + data.arcScores[c.idx].toFixed(2) + '°' + traitLine + '</div>';
+        '<div class="cmeta">Average deviation <b>' + c.score.toFixed(2) + '°</b><br>Moon component ' + data.moonScores[c.idx].toFixed(2) + '° · Solar-arc component ' + data.arcScores[c.idx].toFixed(2) + '°' + traitLine + consistencyLine + '</div>';
       candWrap.appendChild(card);
     });
 
@@ -2080,9 +2113,14 @@
       const sign = ZODIAC_SIGNS[data.signIdxs[c.idx]];
       const traitFrac = data.traitFracs[c.idx];
       const traitCell = data.traitsUsed ? "<td>" + (traitFrac !== null ? Math.round(traitFrac * 100) + "%" : "—") + "</td>" : "";
+      const candNatal = window.__risingHourEngine.natalChart(data.by, data.bm, data.bd, c.t, data.utcOffset, data.lat, data.lon);
+      const consistency = consistencySummary(eventDeviationsForCandidate(candNatal, data.birthJdNoon, data.validEvents, data.staticBodies));
+      const consistencyCell = consistency.total > 1
+        ? "<td>" + consistency.median.toFixed(2) + "°</td><td>" + consistency.agreeCount + "/" + consistency.total + "</td>"
+        : "<td>—</td><td>—</td>";
       return "<tr><td>" + (i + 1) + "</td><td>" + hoursToClock(c.t) + "</td><td>" + sign.en + " (" + sign.tr + ")</td><td>" +
         c.score.toFixed(2) + "°</td><td>" + data.moonScores[c.idx].toFixed(2) + "°</td><td>" + data.arcScores[c.idx].toFixed(2) + "°</td>" +
-        traitCell + "</tr>";
+        consistencyCell + traitCell + "</tr>";
     }).join("");
 
     const chartClone = document.getElementById("chartSvg").outerHTML;
@@ -2112,7 +2150,7 @@
           '<div style="margin-top: 4px; color: #444;">' + escapeAttr(caption) + '</div>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Top candidates</h3>' +
-          '<table class="pr-cand-table"><thead><tr><th>#</th><th>Time</th><th>Rising sign</th><th>Combined</th><th>Moon</th><th>Solar arc</th>' +
+          '<table class="pr-cand-table"><thead><tr><th>#</th><th>Time</th><th>Rising sign</th><th>Combined</th><th>Moon</th><th>Solar arc</th><th>Median</th><th>Agreement</th>' +
           (data.traitsUsed ? '<th>Appearance</th>' : '') + '</tr></thead><tbody>' + candRows + '</tbody></table>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Fit across the scanned window</h3>' +
