@@ -246,9 +246,14 @@
   .event-row {
     display: grid;
     grid-template-columns: 128px 1fr 30px;
+    grid-template-areas: "date label remove" "type type type";
     gap: 8px;
     align-items: center;
   }
+  .event-row .ev-date { grid-area: date; }
+  .event-row .ev-label { grid-area: label; }
+  .event-row .event-remove { grid-area: remove; }
+  .event-row .ev-type { grid-area: type; font-family: "Manrope", sans-serif; }
   .event-row input[type="text"] { font-family: "Manrope", sans-serif; }
   .event-remove {
     width: 30px; height: 30px;
@@ -677,7 +682,7 @@
           <label class="flabel">Dated life events</label>
           <div id="events"></div>
           <button type="button" class="btn add" id="addEvent">+ Add an event</button>
-          <p class="fhelp">Turning points work best: a move, a marriage, a first heartbreak, a career leap, a loss, a diagnosis, a graduation. Three or more, spread across different years, give this something real to triangulate against.</p>
+          <p class="fhelp">Turning points work best: a move, a marriage, a first heartbreak, a career leap, a loss, a diagnosis, a graduation. Three or more, spread across different years, give this something real to triangulate against. <strong>Set each event's type</strong> — it tells the engine which planet/house to check (relationships → Venus/7th, career → Saturn/MC, health or loss → Mars/Saturn, and so on) instead of only the generic angle-activation test, which sharpens the fit considerably.</p>
         </div>
 
         <div class="field">
@@ -1000,22 +1005,43 @@
 
   const TROPICAL_YEAR = 365.2425;
 
-  function eventScoreForChart(natal, eventJdNoon, birthJdNoon) {
+  /* Which natal points a given life-event TYPE is expected to activate. Traditional
+     significators: relationships -> Venus/Descendant (7th); career -> Saturn/MC (10th);
+     home/relocation -> Moon/IC (4th); health or loss -> Mars/Saturn (classical malefics,
+     6th/8th/12th axis); child -> Venus/Moon (5th); education -> Mercury (9th/3rd).
+     "general" reproduces the original, type-agnostic angle test (Sun/Moon/ASC/MC) so
+     events left unclassified score exactly as they always have. `moon` points are tested
+     against the progressed Moon (and their own opposition); `arc` points are tested
+     against the solar-arc-directed ASC/MC/DESC/IC. */
+  function targetsForEventType(type, natal, staticBodies) {
+    switch (type) {
+      case "relationship": return { moon: [staticBodies.venus, norm360(natal.asc + 180)], arc: [staticBodies.venus] };
+      case "career": return { moon: [natal.mc, staticBodies.saturn], arc: [staticBodies.saturn] };
+      case "move": return { moon: [norm360(natal.mc + 180), natal.moon], arc: [natal.moon] };
+      case "health": return { moon: [staticBodies.mars, staticBodies.saturn], arc: [staticBodies.mars, staticBodies.saturn] };
+      case "child": return { moon: [staticBodies.venus, norm360(natal.asc + 120)], arc: [staticBodies.venus, natal.moon] };
+      case "education": return { moon: [staticBodies.mercury, norm360(natal.asc + 240)], arc: [staticBodies.mercury] };
+      default: return { moon: [natal.asc, natal.mc], arc: [natal.sun, natal.moon] };
+    }
+  }
+
+  function eventScoreForChart(natal, eventJdNoon, birthJdNoon, eventType, staticBodies) {
     const yearsElapsed = (eventJdNoon - birthJdNoon) / TROPICAL_YEAR;
     const progJd = natal.jd + yearsElapsed;
     const progMoon = moonLongitude(progJd);
-    const moonDist = Math.min(
-      circDist(progMoon, natal.asc), circDist(progMoon, natal.asc + 180),
-      circDist(progMoon, natal.mc), circDist(progMoon, natal.mc + 180)
-    );
     const arc = norm360(sunLongitude(progJd) - natal.sun);
     const dAsc = norm360(natal.asc + arc), dMc = norm360(natal.mc + arc);
-    const arcDist = Math.min(
-      circDist(dAsc, natal.sun), circDist(dAsc, natal.moon),
-      circDist(dAsc + 180, natal.sun), circDist(dAsc + 180, natal.moon),
-      circDist(dMc, natal.sun), circDist(dMc, natal.moon),
-      circDist(dMc + 180, natal.sun), circDist(dMc + 180, natal.moon)
-    );
+    const directedPoints = [dAsc, norm360(dAsc + 180), dMc, norm360(dMc + 180)];
+    const targets = targetsForEventType(eventType, natal, staticBodies || {});
+
+    let moonDist = Infinity;
+    targets.moon.forEach(function (t) {
+      moonDist = Math.min(moonDist, circDist(progMoon, t), circDist(progMoon, norm360(t + 180)));
+    });
+    let arcDist = Infinity;
+    directedPoints.forEach(function (dp) {
+      targets.arc.forEach(function (t) { arcDist = Math.min(arcDist, circDist(dp, t)); });
+    });
     return { moonDist, arcDist };
   }
 
@@ -1038,7 +1064,7 @@
     return { jd: natal.jd, asc: natal.asc, mc: natal.mc, cusps: cusps, bodies: bodies };
   }
 
-  window.__risingHourEngine = { julianDay, natalChart, eventScoreForChart, TROPICAL_YEAR, computeFullNatalChart };
+  window.__risingHourEngine = { julianDay, natalChart, eventScoreForChart, TROPICAL_YEAR, computeFullNatalChart, planetGeocentricLongitude };
 
   /* ---------------- Rising-sign appearance folklore ----------------
      Keyword profiles compiled from several published sources on rising-sign
@@ -1313,7 +1339,22 @@
     return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  function addEventRow(date, label) {
+  const EVENT_TYPES = [
+    { id: "general", label: "General / not sure — generic angle test" },
+    { id: "relationship", label: "Relationship — marriage, engagement, breakup" },
+    { id: "career", label: "Career — new job, promotion, business launch or loss" },
+    { id: "move", label: "Home — moved house, emigrated, left home" },
+    { id: "health", label: "Health or loss — diagnosis, surgery, accident, bereavement" },
+    { id: "child", label: "Child — pregnancy, birth of a child" },
+    { id: "education", label: "Education — graduation, exam, long journey/study abroad" }
+  ];
+  function eventTypeOptionsHtml(selected) {
+    return EVENT_TYPES.map(function (t) {
+      return '<option value="' + t.id + '"' + (t.id === selected ? " selected" : "") + '>' + escapeAttr(t.label) + '</option>';
+    }).join("");
+  }
+
+  function addEventRow(date, label, type) {
     const id = "ev" + (eventRowId++);
     const row = document.createElement("div");
     row.className = "event-row";
@@ -1321,10 +1362,12 @@
     row.innerHTML =
       '<input type="date" class="ev-date" aria-label="Event date" value="' + escapeAttr(date) + '">' +
       '<input type="text" class="ev-label" aria-label="Event description" placeholder="What happened — e.g. married, moved abroad, first heartbreak" value="' + escapeAttr(label) + '">' +
-      '<button type="button" class="event-remove" aria-label="Remove this event" title="Remove">×</button>';
+      '<button type="button" class="event-remove" aria-label="Remove this event" title="Remove">×</button>' +
+      '<select class="ev-type" aria-label="Event type">' + eventTypeOptionsHtml(type || "general") + '</select>';
     eventsWrap.appendChild(row);
     row.querySelector(".event-remove").addEventListener("click", function () { row.remove(); persistState(); });
     row.querySelectorAll("input").forEach(function (inp) { inp.addEventListener("input", persistState); });
+    row.querySelector(".ev-type").addEventListener("change", persistState);
   }
   document.getElementById("addEvent").addEventListener("click", function () { addEventRow(); persistState(); });
 
@@ -1334,7 +1377,8 @@
     rows.forEach(function (row) {
       const date = row.querySelector(".ev-date").value;
       const label = row.querySelector(".ev-label").value.trim();
-      if (date) out.push({ date: date, label: label || "Untitled event" });
+      const type = row.querySelector(".ev-type").value || "general";
+      if (date) out.push({ date: date, label: label || "Untitled event", type: type });
     });
     return out;
   }
@@ -1408,7 +1452,7 @@
     selectedCityMeta = null;
 
     if (state && state.events && state.events.length) {
-      state.events.forEach(function (ev) { addEventRow(ev.date, ev.label); });
+      state.events.forEach(function (ev) { addEventRow(ev.date, ev.label, ev.type); });
     } else {
       addEventRow(); addEventRow(); addEventRow();
     }
@@ -1576,13 +1620,22 @@
     events.forEach(function (ev) {
       const [ey, em, ed] = ev.date.split("-").map(Number);
       const jdNoon = window.__risingHourEngine.julianDay(ey, em, ed, 12, 0, 0);
-      if (jdNoon > birthJdNoon) validEvents.push({ label: ev.label, jdNoon: jdNoon, date: ev.date });
+      if (jdNoon > birthJdNoon) validEvents.push({ label: ev.label, jdNoon: jdNoon, date: ev.date, type: ev.type || "general" });
     });
     if (validEvents.length < 1) {
       formMsg.className = "msg warn show";
       formMsg.textContent = "None of the events fall after the birth date — check the dates entered.";
       return;
     }
+
+    // Slow-moving bodies barely shift over the course of one day, so these are computed once
+    // (at birth noon) rather than re-derived at every candidate minute in the scan below.
+    const staticBodies = {
+      mercury: window.__risingHourEngine.planetGeocentricLongitude("mercury", birthJdNoon),
+      venus: window.__risingHourEngine.planetGeocentricLongitude("venus", birthJdNoon),
+      mars: window.__risingHourEngine.planetGeocentricLongitude("mars", birthJdNoon),
+      saturn: window.__risingHourEngine.planetGeocentricLongitude("saturn", birthJdNoon)
+    };
 
     let startDec, endDec;
     if (timeKnowledge === "window") {
@@ -1607,7 +1660,7 @@
       const natal = window.__risingHourEngine.natalChart(by, bm, bd, localDec, utcOffset, lat, lon);
       let moonSum = 0, arcSum = 0;
       validEvents.forEach(function (ev) {
-        const s = window.__risingHourEngine.eventScoreForChart(natal, ev.jdNoon, birthJdNoon);
+        const s = window.__risingHourEngine.eventScoreForChart(natal, ev.jdNoon, birthJdNoon, ev.type, staticBodies);
         moonSum += s.moonDist; arcSum += s.arcDist;
       });
       const moonAvg = moonSum / validEvents.length, arcAvg = arcSum / validEvents.length;
@@ -1634,7 +1687,7 @@
       birthDate: birthDateStr, timeKnowledge: timeKnowledge,
       windowStart: document.getElementById("windowStart").value, windowEnd: document.getElementById("windowEnd").value,
       utcOffset: utcOffset, lat: lat, lon: lon,
-      events: validEvents.map(function (ev) { return { date: ev.date, label: ev.label }; }),
+      events: validEvents.map(function (ev) { return { date: ev.date, label: ev.label, type: ev.type }; }),
       traitLabels: selectedTraits.map(function (id) {
         const t = TRAIT_TAGS.find(function (x) { return x.id === id; });
         return t ? t.label : id;
@@ -2006,7 +2059,9 @@
       : "No known window — full day scanned";
 
     const eventsRows = inputs.events.map(function (ev) {
-      return "<tr><td>" + escapeAttr(ev.date) + "</td><td>" + escapeAttr(ev.label) + "</td></tr>";
+      const t = EVENT_TYPES.find(function (x) { return x.id === (ev.type || "general"); });
+      const typeLabel = t ? t.label.split(" — ")[0] : "General";
+      return "<tr><td>" + escapeAttr(ev.date) + "</td><td>" + escapeAttr(ev.label) + "</td><td>" + escapeAttr(typeLabel) + "</td></tr>";
     }).join("");
 
     const traitsLine = inputs.traitLabels.length
@@ -2046,7 +2101,7 @@
           '<div>Birth date: <strong>' + escapeAttr(inputs.birthDate) + '</strong> · ' + escapeAttr(timeLine) + '</div>' +
           '<div>UTC offset: <strong>' + inputs.utcOffset + '</strong> hours · Coordinates: <strong>' + inputs.lat.toFixed(2) + ', ' + inputs.lon.toFixed(2) + '</strong></div>' +
           '<div style="margin-top:8px;">Life events used:</div>' +
-          '<table class="pr-events-table"><thead><tr><th>Date</th><th>Event</th></tr></thead><tbody>' + eventsRows + '</tbody></table>' +
+          '<table class="pr-events-table"><thead><tr><th>Date</th><th>Event</th><th>Type</th></tr></thead><tbody>' + eventsRows + '</tbody></table>' +
           '<div style="margin-top:8px;">Physical-appearance traits selected: ' + traitsLine + '</div>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Estimate</h3>' +
