@@ -33,6 +33,8 @@
     --moon-soft:   rgba(79,95,191,0.13);
     --transit:     #0f7a72;
     --transit-soft: rgba(15,122,114,0.13);
+    --fortune:     #a8437a;
+    --fortune-soft: rgba(168,67,122,0.13);
     --good:        #1a7a4c;
     --warn:        #a85d00;
     --crit:        #b23a3a;
@@ -57,6 +59,8 @@
       --moon-soft:   rgba(143,157,232,0.14);
       --transit:     #4fd6c5;
       --transit-soft: rgba(79,214,197,0.14);
+      --fortune:     #e389bd;
+      --fortune-soft: rgba(227,137,189,0.14);
       --good:        #3fae7c;
       --warn:        #d99a3f;
       --crit:        #e17272;
@@ -81,6 +85,8 @@
     --moon-soft:   rgba(143,157,232,0.14);
     --transit:     #4fd6c5;
     --transit-soft: rgba(79,214,197,0.14);
+    --fortune:     #e389bd;
+    --fortune-soft: rgba(227,137,189,0.14);
     --good:        #3fae7c;
     --warn:        #d99a3f;
     --crit:        #e17272;
@@ -402,6 +408,7 @@
   .series-arc { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linecap: round; }
   .series-moon { fill: none; stroke: var(--moon); stroke-width: 2; stroke-linecap: round; }
   .series-transit { fill: none; stroke: var(--transit); stroke-width: 2; stroke-linecap: round; }
+  .series-fortune { fill: none; stroke: var(--fortune); stroke-width: 2; stroke-linecap: round; }
   .best-marker { fill: var(--surface); stroke: var(--ink-1); stroke-width: 2; }
   .window-band { fill: var(--moon-soft); }
   .crosshair-line { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 2 3; }
@@ -584,7 +591,7 @@
       /* force the light palette for print regardless of OS dark mode, since the report is set on a white page */
       --page: #ffffff; --surface: #ffffff; --surface-2: #f4f4f4;
       --ink-1: #14151f; --ink-2: #4b4d5f; --ink-3: #82849a;
-      --grid: #e2e1ee; --gold: #b3760a; --moon: #4f5fbf; --transit: #0f7a72; --hairline: #d8d8d8; --hairline-2: #cfcfcf;
+      --grid: #e2e1ee; --gold: #b3760a; --moon: #4f5fbf; --transit: #0f7a72; --fortune: #a8437a; --hairline: #d8d8d8; --hairline-2: #cfcfcf;
       --good: #1a7a4c; --crit: #b23a3a;
     }
     html, body { background: #ffffff !important; }
@@ -736,6 +743,7 @@
             <div class="legend">
               <span class="lg"><span class="swatch" style="background:var(--gold)"></span>Solar arc → angles</span>
               <span class="lg"><span class="swatch" style="background:var(--moon)"></span>Progressed Moon → angles</span>
+              <span class="lg"><span class="swatch" style="background:var(--fortune)"></span>Progressed Fortune → angles</span>
               <span class="lg" id="legendTransit" style="display:none;"><span class="swatch" style="background:var(--transit)"></span>Transits → angles</span>
             </div>
           </div>
@@ -750,7 +758,7 @@
           <div class="chart-head">
             <h3>Potential natal chart</h3>
           </div>
-          <p class="fhelp" style="margin-bottom:0;">Drawn for candidate 1 above — the single best-fitting time. Placidus houses; ten bodies computed for that exact moment. If the true birth time sits elsewhere in the estimate, some of this will shift.</p>
+          <p class="fhelp" style="margin-bottom:0;">Drawn for candidate 1 above — the single best-fitting time. Placidus houses; ten bodies and seven Arabic Parts computed for that exact moment. If the true birth time sits elsewhere in the estimate, some of this will shift.</p>
           <div class="wheel-layout">
             <figure class="wheel-figure">
               <svg id="wheelSvg" viewBox="0 0 640 640" role="img" aria-label="Natal chart wheel for the best-fit candidate time"></svg>
@@ -759,6 +767,8 @@
             <div class="wheel-legend">
               <h4>Positions</h4>
               <div id="wheelPositions"></div>
+              <h4 style="margin-top:14px;">Arabic Parts</h4>
+              <div id="wheelParts"></div>
               <h4 style="margin-top:14px;">Aspect lines</h4>
               <div class="wl-row"><span class="wl-line" style="background:var(--good)"></span>Trine / sextile — harmonious</div>
               <div class="wl-row"><span class="wl-line" style="background:var(--crit)"></span>Square / opposition — challenging</div>
@@ -774,10 +784,12 @@
             <p>The Moon appears to travel roughly one degree per day; secondary progression re-reads that as one day per year of life. This tool finds the Moon's progressed position for the birth-year-adjusted date of each event and measures its distance to the four chart angles (Ascendant, Descendant, Midheaven, Imum Coeli) for each candidate birth time — closer contact at more of your events favours that candidate.</p>
             <h4>Solar arc directions to the angles</h4>
             <p>The Sun's own progressed movement (about a degree per year) is applied to the natal angles directly, then checked for contact with the natal Sun and Moon at each event date — a second, independent classical technique for the same purpose.</p>
+            <h4>Progressed Part of Fortune to the angles</h4>
+            <p>The Part of Fortune is the best-known of the classical Arabic Parts (Al-Biruni's "Lots"): a point built from the Ascendant, Sun and Moon that has stood for the native's wellbeing since Hellenistic astrology. It's computed for the natal chart (Ascendant + Moon − Sun, reversed to Ascendant + Sun − Moon for a night birth — Sun below the horizon at birth), then progressed the same way the Moon is above — using the progressed Sun and Moon for each event's date over the radix Ascendant — and checked for contact with the four chart angles. A third, independent technique, built the same way as the Moon technique but from a different point entirely.</p>
             <h4>Transits to the angles</h4>
-            <p>Where an event's type has a traditional planetary significator (Venus for relationships, Saturn for career, Mercury for education or a sibling, and so on), the tool looks up that planet's actual sky position on the event's calendar date — no birth data involved, just an ephemeris lookup — and measures its distance to the four candidate angles. Because these bodies move slowly, a real hit tends to hold for weeks around the date, making this a stable third signal, moving at yet another rate from progressions and solar arc — useful for telling apart candidate times that the other two techniques alone can't distinguish. It only runs for events with a typed significator; events left as "General" don't contribute to it.</p>
+            <p>Where an event's type has a traditional planetary significator (Venus for relationships, Saturn for career, Mercury for education or a sibling, and so on), the tool looks up that planet's actual sky position on the event's calendar date — no birth data involved, just an ephemeris lookup — and measures its distance to the four candidate angles. Because these bodies move slowly, a real hit tends to hold for weeks around the date, making this a stable fourth signal, moving at yet another rate from the three techniques above — useful for telling apart candidate times the others alone can't distinguish. It only runs for events with a typed significator; events left as "General" don't contribute to it.</p>
             <h4>Physical appearance by rising sign</h4>
-            <p>If you ticked any appearance traits, a third, separate tradition comes into play: the belief that the rising sign shows in physical features. The tool compares your selections against a keyword profile compiled from several published sources on rising-sign appearance and folds the match — averaged in equally alongside the two techniques above — into the ranking. Because the rising sign only changes roughly every two hours (faster or slower depending on latitude and time of year), this mainly narrows down which broad window of the day is plausible; the Moon and solar-arc techniques then do the finer work of pinpointing a time inside it. This is the least rigorous of the three signals — appearance-by-sign is folklore with no evidence behind it, sources disagree with each other, and any single person can look nothing like their sign's "typical" description — so a low or missing trait match on an otherwise strong candidate is not a reason to discard it.</p>
+            <p>If you ticked any appearance traits, a further, separate tradition comes into play: the belief that the rising sign shows in physical features. The tool compares your selections against a keyword profile compiled from several published sources on rising-sign appearance and folds the match — averaged in equally alongside the techniques above — into the ranking. Because the rising sign only changes roughly every two hours (faster or slower depending on latitude and time of year), this mainly narrows down which broad window of the day is plausible; the other techniques then do the finer work of pinpointing a time inside it. This is the least rigorous of these signals — appearance-by-sign is folklore with no evidence behind it, sources disagree with each other, and any single person can look nothing like their sign's "typical" description — so a low or missing trait match on an otherwise strong candidate is not a reason to discard it.</p>
             <h4>The natal chart wheel</h4>
             <p>The wheel is drawn only for the single best-fit candidate above — not the full scanned window — since a chart needs one specific moment. Houses use the Placidus system (the most common Western default, dividing each quadrant's daily arc into thirds; verified during development to place the Ascendant and Midheaven exactly on cusps 1 and 10, keep all twelve cusps in strictly increasing order around the circle, and hold opposite cusps exactly 180° apart, checked from the equator to high latitudes). The other eight bodies use the standard low-precision planetary formulas valid 1800–2050 (accurate to roughly an arcminute for Mercury through Mars, a few arcminutes further out; checked against known orbital limits — Mercury and Venus never exceed their real maximum elongation from the Sun, and each outer planet's distance from the Sun stays inside its known range). Aspect lines use conventional orbs (5–8° depending on the aspect) and are only ever a description of angles — no outcome is implied.</p>
             <h4>What's real astronomy here, and what isn't</h4>
@@ -994,6 +1006,17 @@
   };
   const BODY_ORDER = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];
 
+  const ARABIC_PART_META = {
+    fortune: { glyph: "⊗", label: "Part of Fortune" },
+    spirit: { glyph: "⊗", label: "Part of Spirit" },
+    necessity: { glyph: "⊗", label: "Part of Necessity" },
+    eros: { glyph: "⊗", label: "Part of Eros" },
+    courage: { glyph: "⊗", label: "Part of Courage" },
+    victory: { glyph: "⊗", label: "Part of Victory" },
+    nemesis: { glyph: "⊗", label: "Part of Nemesis" }
+  };
+  const ARABIC_PART_ORDER = ["fortune", "spirit", "necessity", "eros", "courage", "victory", "nemesis"];
+
   // jd for a given calendar date + local decimal hours + UTC offset (handles rollover cleanly)
   function jdFromLocal(y, mo, d, localDecHours, utcOffsetHours) {
     const jd0 = julianDay(y, mo, d, 0, 0, 0);
@@ -1041,7 +1064,8 @@
     const yearsElapsed = (eventJdNoon - birthJdNoon) / TROPICAL_YEAR;
     const progJd = natal.jd + yearsElapsed;
     const progMoon = moonLongitude(progJd);
-    const arc = norm360(sunLongitude(progJd) - natal.sun);
+    const progSun = sunLongitude(progJd);
+    const arc = norm360(progSun - natal.sun);
     const dAsc = norm360(natal.asc + arc), dMc = norm360(natal.mc + arc);
     const directedPoints = [dAsc, norm360(dAsc + 180), dMc, norm360(dMc + 180)];
     const targets = targetsForEventType(eventType, natal, staticBodies || {});
@@ -1054,7 +1078,16 @@
     directedPoints.forEach(function (dp) {
       targets.arc.forEach(function (t) { arcDist = Math.min(arcDist, circDist(dp, t)); });
     });
-    return { moonDist, arcDist };
+
+    // Progressed Part of Fortune (same construction as the natal lot, but from the
+    // progressed Sun/Moon over the radix Ascendant) checked against the four natal
+    // angles — a fourth independent technique, built the same way progressed Moon is.
+    const progFortune = lotPoint(natal.asc, progMoon, progSun, isNightBirth(natal));
+    const anglePoints = [natal.asc, norm360(natal.asc + 180), natal.mc, norm360(natal.mc + 180)];
+    let fortuneDist = Infinity;
+    anglePoints.forEach(function (a) { fortuneDist = Math.min(fortuneDist, circDist(progFortune, a)); });
+
+    return { moonDist, arcDist, fortuneDist };
   }
 
   /* Which body (or bodies) a life-event TYPE expects to see transiting the angles on the
@@ -1744,24 +1777,24 @@
     const selectedTraits = getSelectedTraits();
     const TRAIT_PENALTY_SCALE = 14; // degrees-equivalent, comparable in magnitude to the other two signals
 
-    const times = [], moonScores = [], arcScores = [], transitScores = [], combinedScores = [], signIdxs = [], traitFracs = [];
+    const times = [], moonScores = [], arcScores = [], transitScores = [], fortuneScores = [], combinedScores = [], signIdxs = [], traitFracs = [];
     for (let i = 0; i <= steps; i++) {
       const localDec = startDec + (i / steps) * (endDec - startDec);
       const localDecMod = ((localDec % 24) + 24) % 24;
       const natal = window.__risingHourEngine.natalChart(by, bm, bd, localDec, utcOffset, lat, lon);
-      let moonSum = 0, arcSum = 0, transitSum = 0, transitTouched = 0;
+      let moonSum = 0, arcSum = 0, fortuneSum = 0, transitSum = 0, transitTouched = 0;
       validEvents.forEach(function (ev) {
         const s = window.__risingHourEngine.eventScoreForChart(natal, ev.jdNoon, birthJdNoon, ev.type, staticBodies);
-        moonSum += s.moonDist; arcSum += s.arcDist;
+        moonSum += s.moonDist; arcSum += s.arcDist; fortuneSum += s.fortuneDist;
         if (hasTransitSignal) {
           const td = window.__risingHourEngine.transitDistanceForEvent(natal, ev.transitLons);
           if (td !== null) { transitSum += td; transitTouched++; }
         }
       });
-      const moonAvg = moonSum / validEvents.length, arcAvg = arcSum / validEvents.length;
+      const moonAvg = moonSum / validEvents.length, arcAvg = arcSum / validEvents.length, fortuneAvg = fortuneSum / validEvents.length;
       const transitAvg = transitTouched > 0 ? transitSum / transitTouched : null;
       const signIdx = signIndexOf(natal.asc);
-      const components = [moonAvg, arcAvg];
+      const components = [moonAvg, arcAvg, fortuneAvg];
       if (transitAvg !== null) components.push(transitAvg);
       let traitFrac = null;
       if (selectedTraits.length > 0) {
@@ -1774,6 +1807,7 @@
       times.push(localDecMod);
       moonScores.push(moonAvg);
       arcScores.push(arcAvg);
+      fortuneScores.push(fortuneAvg);
       transitScores.push(transitAvg);
       combinedScores.push(combined);
       signIdxs.push(signIdx);
@@ -1792,7 +1826,7 @@
     };
 
     renderResults({
-      times: times, moonScores: moonScores, arcScores: arcScores, transitScores: transitScores, combinedScores: combinedScores,
+      times: times, moonScores: moonScores, arcScores: arcScores, transitScores: transitScores, fortuneScores: fortuneScores, combinedScores: combinedScores,
       signIdxs: signIdxs, traitFracs: traitFracs, traitsUsed: selectedTraits.length > 0, hasTransitSignal: hasTransitSignal,
       startDec: startDec, endDec: endDec, eventCount: validEvents.length, fullDay: timeKnowledge !== "window",
       by: by, bm: bm, bd: bd, utcOffset: utcOffset, lat: lat, lon: lon,
@@ -1839,7 +1873,7 @@
   function eventDeviationsForCandidate(candNatal, birthJdNoon, validEvents, staticBodies) {
     return validEvents.map(function (ev) {
       const s = window.__risingHourEngine.eventScoreForChart(candNatal, ev.jdNoon, birthJdNoon, ev.type, staticBodies);
-      const parts = [s.moonDist, s.arcDist];
+      const parts = [s.moonDist, s.arcDist, s.fortuneDist];
       const td = window.__risingHourEngine.transitDistanceForEvent(candNatal, ev.transitLons);
       if (td !== null) parts.push(td);
       const dist = parts.reduce(function (a, b) { return a + b; }, 0) / parts.length;
@@ -1918,11 +1952,12 @@
       const transitLine = (data.hasTransitSignal && data.transitScores[c.idx] !== null)
         ? " · Transit component " + data.transitScores[c.idx].toFixed(2) + "°"
         : "";
+      const fortuneLine = " · Fortune component " + data.fortuneScores[c.idx].toFixed(2) + "°";
       card.innerHTML =
         '<div class="rank">Candidate ' + (i + 1) + (i === 0 ? " · best fit" : "") + '</div>' +
         '<div class="sign-badge">' + sign.en + '<span class="tr-name">' + sign.tr + ' rising</span></div>' +
         '<div class="ctime">' + hoursToClock(c.t) + '</div>' +
-        '<div class="cmeta">Average deviation <b>' + c.score.toFixed(2) + '°</b><br>Moon component ' + data.moonScores[c.idx].toFixed(2) + '° · Solar-arc component ' + data.arcScores[c.idx].toFixed(2) + '°' + transitLine + traitLine + consistencyLine + '</div>';
+        '<div class="cmeta">Average deviation <b>' + c.score.toFixed(2) + '°</b><br>Moon component ' + data.moonScores[c.idx].toFixed(2) + '° · Solar-arc component ' + data.arcScores[c.idx].toFixed(2) + '°' + fortuneLine + transitLine + traitLine + consistencyLine + '</div>';
       candWrap.appendChild(card);
     });
 
@@ -1939,7 +1974,7 @@
     const signCol = "<th>Rising sign</th>";
     const transitCol = data.hasTransitSignal ? "<th>Transit</th>" : "";
     const traitCol = data.traitsUsed ? "<th>Appearance</th>" : "";
-    let html = "<thead><tr><th>Time</th><th>Combined</th><th>Moon</th><th>Solar arc</th>" + transitCol + signCol + traitCol + "<th></th></tr></thead><tbody>";
+    let html = "<thead><tr><th>Time</th><th>Combined</th><th>Moon</th><th>Solar arc</th><th>Fortune</th>" + transitCol + signCol + traitCol + "<th></th></tr></thead><tbody>";
     const showEvery = data.times.length > 60 ? Math.ceil(data.times.length / 60) : 1;
     for (let i = 0; i < data.times.length; i++) {
       if (i % showEvery !== 0 && !bestIdxSet.has(i)) continue;
@@ -1947,7 +1982,7 @@
       const transitCell = data.hasTransitSignal ? "<td>" + (data.transitScores[i] !== null ? data.transitScores[i].toFixed(2) + "°" : "—") + "</td>" : "";
       const traitCell = data.traitsUsed ? "<td>" + (data.traitFracs[i] !== null ? Math.round(data.traitFracs[i] * 100) + "%" : "—") + "</td>" : "";
       html += "<tr><td>" + hoursToClock(data.times[i]) + "</td><td>" + data.combinedScores[i].toFixed(2) + "°</td><td>" +
-        data.moonScores[i].toFixed(2) + "°</td><td>" + data.arcScores[i].toFixed(2) + "°</td>" + transitCell + signCell + traitCell + "<td>" +
+        data.moonScores[i].toFixed(2) + "°</td><td>" + data.arcScores[i].toFixed(2) + "°</td><td>" + data.fortuneScores[i].toFixed(2) + "°</td>" + transitCell + signCell + traitCell + "<td>" +
         (bestIdxSet.has(i) ? "★" : "") + "</td></tr>";
     }
     html += "</tbody>";
@@ -1960,7 +1995,7 @@
     const plotW = W - padL - padR, plotH = H - padT - padB;
     const n = data.times.length;
 
-    const allScores = data.moonScores.concat(data.arcScores).concat(data.hasTransitSignal ? data.transitScores.filter(function (v) { return v !== null; }) : []);
+    const allScores = data.moonScores.concat(data.arcScores).concat(data.fortuneScores).concat(data.hasTransitSignal ? data.transitScores.filter(function (v) { return v !== null; }) : []);
     const maxScore = Math.max(8, Math.max.apply(null, allScores) * 1.08);
 
     document.getElementById("legendTransit").style.display = data.hasTransitSignal ? "" : "none";
@@ -1996,6 +2031,7 @@
     }
     svgHtml += '<path class="series-arc" d="' + pathFor(data.arcScores) + '"/>';
     svgHtml += '<path class="series-moon" d="' + pathFor(data.moonScores) + '"/>';
+    svgHtml += '<path class="series-fortune" d="' + pathFor(data.fortuneScores) + '"/>';
     if (data.hasTransitSignal) svgHtml += '<path class="series-transit" d="' + pathFor(data.transitScores) + '"/>';
 
     ranked.forEach(function (c, i) {
@@ -2029,6 +2065,7 @@
         '<div class="tt-time">' + hoursToClock(data.times[i]) + '</div>' +
         '<div class="tt-row"><span style="color:var(--gold)">Solar arc</span><span>' + data.arcScores[i].toFixed(2) + '°</span></div>' +
         '<div class="tt-row"><span style="color:var(--moon)">Moon</span><span>' + data.moonScores[i].toFixed(2) + '°</span></div>' +
+        '<div class="tt-row"><span style="color:var(--fortune)">Fortune</span><span>' + data.fortuneScores[i].toFixed(2) + '°</span></div>' +
         (data.hasTransitSignal && data.transitScores[i] !== null
           ? '<div class="tt-row"><span style="color:var(--transit)">Transit</span><span>' + data.transitScores[i].toFixed(2) + '°</span></div>'
           : '');
@@ -2188,6 +2225,15 @@
       return '<div class="wl-row"><span class="wl-glyph ' + bodyCls + '">' + meta.glyph + '</span>' + meta.label + ' — ' + degInSign + '° ' + ZODIAC_SIGNS[signIdx].en +
         (b.retro ? '<span class="wl-retro">℞︎ retrograde</span>' : '') + '</div>';
     }).join("");
+
+    const partsWrap = document.getElementById("wheelParts");
+    partsWrap.innerHTML = ARABIC_PART_ORDER.map(function (key) {
+      const lon = chart.parts[key];
+      const signIdx = Math.floor(norm360(lon) / 30);
+      const degInSign = Math.floor(norm360(lon) - signIdx * 30);
+      const meta = ARABIC_PART_META[key];
+      return '<div class="wl-row"><span class="wl-glyph">' + meta.glyph + '</span>' + meta.label + ' — ' + degInSign + '° ' + ZODIAC_SIGNS[signIdx].en + '</div>';
+    }).join("") + '<div class="wl-row" style="margin-top:4px; color:var(--ink-3); font-size:11px;">' + (chart.parts.night ? "Night chart" : "Day chart") + ' — every lot above uses the ' + (chart.parts.night ? "reversed" : "standard") + ' formula.</div>';
   }
 
   /* ---------------- PDF report (native browser print) ---------------- */
@@ -2231,7 +2277,7 @@
         ? "<td>" + (data.transitScores[c.idx] !== null ? data.transitScores[c.idx].toFixed(2) + "°" : "—") + "</td>"
         : "";
       return "<tr><td>" + (i + 1) + "</td><td>" + hoursToClock(c.t) + "</td><td>" + sign.en + " (" + sign.tr + ")</td><td>" +
-        c.score.toFixed(2) + "°</td><td>" + data.moonScores[c.idx].toFixed(2) + "°</td><td>" + data.arcScores[c.idx].toFixed(2) + "°</td>" +
+        c.score.toFixed(2) + "°</td><td>" + data.moonScores[c.idx].toFixed(2) + "°</td><td>" + data.arcScores[c.idx].toFixed(2) + "°</td><td>" + data.fortuneScores[c.idx].toFixed(2) + "°</td>" +
         transitCell + consistencyCell + traitCell + "</tr>";
     }).join("");
 
@@ -2239,6 +2285,7 @@
     const wheelClone = document.getElementById("wheelSvg").outerHTML;
     const wheelCaptionText = document.getElementById("wheelCaption").textContent;
     const positionsClone = document.getElementById("wheelPositions").innerHTML;
+    const partsClone = document.getElementById("wheelParts").innerHTML;
 
     document.getElementById("printReport").innerHTML =
       '<div style="font-family: Georgia, \'Times New Roman\', serif; max-width: 720px;">' +
@@ -2262,25 +2309,29 @@
           '<div style="margin-top: 4px; color: #444;">' + escapeAttr(caption) + '</div>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Top candidates</h3>' +
-          '<table class="pr-cand-table"><thead><tr><th>#</th><th>Time</th><th>Rising sign</th><th>Combined</th><th>Moon</th><th>Solar arc</th>' +
+          '<table class="pr-cand-table"><thead><tr><th>#</th><th>Time</th><th>Rising sign</th><th>Combined</th><th>Moon</th><th>Solar arc</th><th>Fortune</th>' +
           (data.hasTransitSignal ? '<th>Transit</th>' : '') + '<th>Median</th><th>Agreement</th>' +
           (data.traitsUsed ? '<th>Appearance</th>' : '') + '</tr></thead><tbody>' + candRows + '</tbody></table>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Fit across the scanned window</h3>' +
           '<div style="max-width: 680px;">' + chartClone + '</div>' +
-          '<div style="font-size: 9pt; color: #666;">Gold — solar arc directions to the angles. Indigo — progressed Moon to the angles.' +
+          '<div style="font-size: 9pt; color: #666;">Gold — solar arc directions to the angles. Indigo — progressed Moon to the angles. Magenta — progressed Part of Fortune to the angles.' +
           (data.hasTransitSignal ? ' Teal — transits to the angles.' : '') + ' Lower is a tighter fit.</div>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px; page-break-before: always;">Potential natal chart</h3>' +
           '<div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">' +
             '<div style="width:340px; flex: 0 0 auto;">' + wheelClone + '</div>' +
-            '<div style="font-size:10pt; line-height:1.6; flex:1 1 220px;">' + positionsClone + '</div>' +
+            '<div style="font-size:10pt; line-height:1.6; flex:1 1 220px;">' + positionsClone +
+              '<div style="font-size:8.5pt; text-transform:uppercase; letter-spacing:0.04em; color:#888; margin:10px 0 4px;">Arabic Parts</div>' + partsClone +
+            '</div>' +
           '</div>' +
           '<div style="font-size: 9pt; color: #666; margin-top:4px;">' + escapeAttr(wheelCaptionText) + '</div>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Method, in brief</h3>' +
-          '<p style="color: #333;">This estimate combines two classical astrological rectification techniques — secondary-progressed Moon contacts to the four chart angles, and solar arc directions of the angles to the natal Sun and Moon — computed from verified low-precision astronomical formulas (sidereal time, obliquity, and Sun/Moon ecliptic longitude). ' +
-          (data.traitsUsed ? 'A third, separate signal — traditional rising-sign appearance folklore, matched against the traits selected — was folded in at equal weight. ' : '') +
+          '<p style="color: #333;">This estimate combines several classical astrological rectification techniques — secondary-progressed Moon contacts to the four chart angles, solar arc directions of the angles to the natal Sun and Moon, the progressed Part of Fortune (Al-Biruni\'s Arabic Parts) contacting the angles' +
+          (data.hasTransitSignal ? ', and transits of each event\'s planetary significator to the angles on its own calendar date' : '') +
+          ' — computed from verified low-precision astronomical formulas (sidereal time, obliquity, and Sun/Moon ecliptic longitude). ' +
+          (data.traitsUsed ? 'A further, separate signal — traditional rising-sign appearance folklore, matched against the traits selected — was folded in at equal weight. ' : '') +
           'None of this is scientifically validated: astrology has not been shown to predict outcomes beyond chance, so treat this report as a documented hypothesis for further exploration, not a certified birth time.</p>' +
 
           '<div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 8.5pt; color: #888;">Personal, non-scientific estimate generated at claude.ai — for self-exploration only. Calculated entirely from the details supplied; accuracy depends on their accuracy.</div>' +
