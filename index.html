@@ -674,6 +674,7 @@
             </div>
           </div>
           <p class="fhelp">"Rough window" narrows the search — e.g. family recalls "early morning" or a birth certificate margin says "AM."</p>
+          <div class="msg warn" id="fullDayWarning" style="display:none;">Scanning a full 24 hours isn't just less precise — it's unreliable in a specific way: across 1,440 candidate minutes and several techniques, a wrong time can rack up more coincidental "hits" than the true one, just from the sheer number of chances. Even a rough window — "morning," "before noon," a birth certificate margin — cuts that search space enough to matter. Use it if you have any hint at all.</div>
         </div>
 
         <div class="field">
@@ -1496,9 +1497,14 @@
 
   /* ---------------- Time-window toggle ---------------- */
   const windowFields = document.getElementById("windowFields");
+  const fullDayWarning = document.getElementById("fullDayWarning");
+  function updateTimeKnowledgeUI(tk) {
+    windowFields.style.display = tk === "window" ? "grid" : "none";
+    fullDayWarning.style.display = tk === "window" ? "none" : "block";
+  }
   document.querySelectorAll('input[name="timeKnowledge"]').forEach(function (r) {
     r.addEventListener("change", function () {
-      windowFields.style.display = (document.querySelector('input[name="timeKnowledge"]:checked').value === "window") ? "grid" : "none";
+      updateTimeKnowledgeUI(document.querySelector('input[name="timeKnowledge"]:checked').value);
       persistState();
     });
   });
@@ -1615,7 +1621,7 @@
     const tk = (state && state.timeKnowledge) || "none";
     const radio = document.querySelector('input[name="timeKnowledge"][value="' + tk + '"]');
     if (radio) radio.checked = true;
-    windowFields.style.display = tk === "window" ? "grid" : "none";
+    updateTimeKnowledgeUI(tk);
     document.getElementById("windowStart").value = (state && state.windowStart) || "06:00";
     document.getElementById("windowEnd").value = (state && state.windowEnd) || "10:00";
     document.getElementById("utcOffset").value = (state && state.utcOffset) || "";
