@@ -1951,6 +1951,38 @@
     });
   }
 
+  const TECHNIQUE_LABELS = { moon: "Moon", arc: "Solar arc", fortune: "Fortune", sr: "Solar return", transit: "Transit" };
+  const TECHNIQUE_ORDER = ["moon", "arc", "fortune", "sr", "transit"];
+
+  // Per-technique view of the same per-event distances above: which single technique, if
+  // any, actually repeats tightly across several events — the tell for a genuine pattern,
+  // as opposed to a good blended average built from different techniques each hitting a
+  // different lone event, which is what coincidence across many scanned candidates looks
+  // like (a wide spread of barely-under-threshold values, no single technique dominant).
+  function techniqueBreakdown(candNatal, birthJdNoon, validEvents, staticBodies, utcOffset, lat, lon, birthMo, birthD) {
+    const byTechnique = { moon: [], arc: [], fortune: [], sr: [], transit: [] };
+    validEvents.forEach(function (ev) {
+      const s = window.__risingHourEngine.eventScoreForChart(candNatal, ev.jdNoon, birthJdNoon, ev.type, staticBodies);
+      const srAngles = window.__risingHourEngine.solarReturnAngles(candNatal.sun, ev.y, ev.m, ev.d, birthMo, birthD, utcOffset, lat, lon);
+      const srDist = window.__risingHourEngine.solarReturnDistanceForEvent(candNatal, srAngles);
+      byTechnique.moon.push(s.moonDist);
+      byTechnique.arc.push(s.arcDist);
+      byTechnique.fortune.push(s.fortuneDist);
+      byTechnique.sr.push(srDist);
+      const td = window.__risingHourEngine.transitDistanceForEvent(candNatal, ev.transitLons);
+      if (td !== null) byTechnique.transit.push(td);
+    });
+    return TECHNIQUE_ORDER.map(function (key) {
+      const vals = byTechnique[key];
+      const hits = vals.filter(function (v) { return v <= AGREEMENT_THRESHOLD_DEG; });
+      return {
+        key: key, label: TECHNIQUE_LABELS[key], total: vals.length, hitCount: hits.length,
+        min: hits.length ? Math.min.apply(null, hits) : null,
+        max: hits.length ? Math.max.apply(null, hits) : null
+      };
+    });
+  }
+
   function consistencySummary(deviations) {
     const dists = deviations.map(function (d) { return d.dist; }).sort(function (a, b) { return a - b; });
     const n = dists.length;
@@ -1978,7 +2010,8 @@
     const rankedInfo = ranked.map(function (c) {
       const candNatal = window.__risingHourEngine.natalChart(data.by, data.bm, data.bd, c.t, data.utcOffset, data.lat, data.lon);
       const deviations = eventDeviationsForCandidate(candNatal, data.birthJdNoon, data.validEvents, data.staticBodies, data.utcOffset, data.lat, data.lon, data.bm, data.bd);
-      return { c: c, consistency: consistencySummary(deviations) };
+      const techniques = techniqueBreakdown(candNatal, data.birthJdNoon, data.validEvents, data.staticBodies, data.utcOffset, data.lat, data.lon, data.bm, data.bd);
+      return { c: c, consistency: consistencySummary(deviations), techniques: techniques };
     });
     const bestConsistency = rankedInfo[0].consistency;
     const bestAgreementFrac = bestConsistency.total > 1 ? bestConsistency.agreeCount / bestConsistency.total : null;
@@ -2051,11 +2084,18 @@
         : "";
       const fortuneLine = " · Fortune component " + data.fortuneScores[c.idx].toFixed(2) + "°";
       const srLine = " · Solar return component " + data.srScores[c.idx].toFixed(2) + "°";
+      const repeating = rankedInfo[i].techniques.filter(function (t) { return t.hitCount > 0; })
+        .sort(function (a, b) { return b.hitCount - a.hitCount; });
+      const patternLine = repeating.length
+        ? "<br>Pattern: " + repeating.map(function (t) {
+            return t.label + " " + t.hitCount + "/" + t.total + " (" + t.min.toFixed(1) + "°–" + t.max.toFixed(1) + "°)";
+          }).join(" · ")
+        : "<br>Pattern: no technique repeats within " + AGREEMENT_THRESHOLD_DEG + "°";
       card.innerHTML =
         '<div class="rank">Candidate ' + (i + 1) + (i === 0 ? " · best fit" : "") + '</div>' +
         '<div class="sign-badge">' + sign.en + '<span class="tr-name">' + sign.tr + ' rising</span></div>' +
         '<div class="ctime">' + hoursToClock(c.t) + '</div>' +
-        '<div class="cmeta">Average deviation <b>' + c.score.toFixed(2) + '°</b><br>Moon component ' + data.moonScores[c.idx].toFixed(2) + '° · Solar-arc component ' + data.arcScores[c.idx].toFixed(2) + '°' + fortuneLine + srLine + transitLine + traitLine + consistencyLine + '</div>';
+        '<div class="cmeta">Average deviation <b>' + c.score.toFixed(2) + '°</b><br>Moon component ' + data.moonScores[c.idx].toFixed(2) + '° · Solar-arc component ' + data.arcScores[c.idx].toFixed(2) + '°' + fortuneLine + srLine + transitLine + traitLine + consistencyLine + patternLine + '</div>';
       candWrap.appendChild(card);
     });
 
@@ -2364,14 +2404,18 @@
     const caption = document.getElementById("headlineCaption").textContent;
     const bestTimeHtml = document.getElementById("bestTime").innerHTML;
 
-    let bestPrintConsistency = null;
+    let bestPrintConsistency = null, bestPrintPattern = null;
     const candRows = ranked.map(function (c, i) {
       const sign = ZODIAC_SIGNS[data.signIdxs[c.idx]];
       const traitFrac = data.traitFracs[c.idx];
       const traitCell = data.traitsUsed ? "<td>" + (traitFrac !== null ? Math.round(traitFrac * 100) + "%" : "—") + "</td>" : "";
       const candNatal = window.__risingHourEngine.natalChart(data.by, data.bm, data.bd, c.t, data.utcOffset, data.lat, data.lon);
       const consistency = consistencySummary(eventDeviationsForCandidate(candNatal, data.birthJdNoon, data.validEvents, data.staticBodies, data.utcOffset, data.lat, data.lon, data.bm, data.bd));
-      if (i === 0) bestPrintConsistency = consistency;
+      if (i === 0) {
+        bestPrintConsistency = consistency;
+        bestPrintPattern = techniqueBreakdown(candNatal, data.birthJdNoon, data.validEvents, data.staticBodies, data.utcOffset, data.lat, data.lon, data.bm, data.bd)
+          .filter(function (t) { return t.hitCount > 0; }).sort(function (a, b) { return b.hitCount - a.hitCount; });
+      }
       const consistencyCell = consistency.total > 1
         ? "<td>" + consistency.median.toFixed(2) + "°</td><td>" + consistency.agreeCount + "/" + consistency.total + "</td>"
         : "<td>—</td><td>—</td>";
@@ -2414,6 +2458,13 @@
               bestPrintConsistency.agreeCount + ' of ' + bestPrintConsistency.total + ' events actually land within ' + AGREEMENT_THRESHOLD_DEG +
               '° at this best-fit time — its low average score likely comes from a few techniques lining up by coincidence across the many times scanned, not real agreement. Weigh this candidate accordingly.</div>'
             : '') +
+          '<div style="margin-top: 6px; font-size: 9.5pt; color: #555;">' +
+          (bestPrintPattern && bestPrintPattern.length
+            ? '<strong>Pattern:</strong> ' + bestPrintPattern.map(function (t) {
+                return t.label + ' ' + t.hitCount + '/' + t.total + ' (' + t.min.toFixed(1) + '°–' + t.max.toFixed(1) + '°)';
+              }).join(' · ') + ' — a single technique repeating tightly across several events is a stronger tell than the average alone; a wide spread among the values above is closer to coincidence than a real signal.'
+            : '<strong>Pattern:</strong> no single technique repeats within ' + AGREEMENT_THRESHOLD_DEG + '° across these events at this candidate.') +
+          '</div>' +
 
           '<h3 style="font-family: Georgia, serif; font-size: 13pt; margin: 18px 0 6px;">Top candidates</h3>' +
           '<table class="pr-cand-table"><thead><tr><th>#</th><th>Time</th><th>Rising sign</th><th>Combined</th><th>Moon</th><th>Solar arc</th><th>Fortune</th><th>Solar return</th>' +
